@@ -2,35 +2,25 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export default function Admin() {
+export default function Admin({name}) {
   const navigate = useNavigate();
-  const [name, setName] = useState(null);
-
-  useEffect(() => {
-    const getname = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/admin", { withCredentials: true , validateStatus:()=>true});
-        console.log(res.data);
-        if (res.status === 200) {
-          setName(res.data.name);
-        } else {
-          navigate("/login");
-        }
-      } catch (err) {
-        console.error(err);
-        console.log("err")
-        navigate("/login"); 
-      }
-    };
-
-    getname();
-  }, [navigate]); 
-
+  const [data, setData]=useState(null);
+  useEffect(()=>
+    {
+        axios.get("http://localhost:5000/get-users",{withCredentials:true, validateStatus:()=>true}).then(
+            (res)=>
+            {
+                setData(res.data.users);
+            }
+        )
+    },[])
   return (
     <div>
-      {name && name !== "" && (
         <p>Welcome {name}</p>
-      )}
+        {data && data.map((user)=>
+        {
+            return <p>{user.username}. {user.name}</p>
+        })}
     </div>
   );
 }

@@ -2,8 +2,10 @@
 import React from "react";
 import { Routes, Route, Link,  useNavigate } from "react-router-dom";
 import Login from "./Login";
-import PostAuth from "./PostAuth";
+import RequireAuth from "./PostAuth";
 import axios from "axios";
+import Dash from "./Dash";
+import Admin from "./Admin";
 
 // Page components (placeholder for now)
 function Home() {
@@ -46,7 +48,8 @@ export default function App() {
         <Route path="/users" element={<Users />} />
         <Route path="/products" element={<Products />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard/*" element={<PostAuth />} />
+         <Route path="/dashboard/*" element={<RequireAuth allowedRoles={['user']}><Dash /></RequireAuth>} />
+  <Route path="/admin/*" element={<RequireAuth allowedRoles={['admin']}><Admin /></RequireAuth>} />
         {/* Catch-all for 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>

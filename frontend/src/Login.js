@@ -24,9 +24,18 @@ export default function Login()
         ).then(res=>{
             if (res.status===200)
             {
-                
+                if (res.data.role==="user")
+                {
                 navigate("/dashboard");
-                
+                }
+                else if(res.data.role==="admin")
+                {
+                    navigate("/admin")
+                }
+                else
+                {
+                    navigate("/login")
+                }
             }
             else{
                 setFailed(true);

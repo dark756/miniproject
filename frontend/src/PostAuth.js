@@ -1,35 +1,34 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
-import Admin from "./Admin";
-import Dash from "./Dash";
-export default function PostAuth() {
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import React from "react";
+export default function RequireAuth({ allowedRoles, children }) {
+  const [loading, setLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
   const nav = useNavigate();
-  const [role, setRole] = useState(null);
-
+  const [name, setName]=useState(null);
   useEffect(() => {
-    axios.get("http://localhost:5000/token", { withCredentials: true })
-      .then(res => {
-        const { name, role } = res.data;
-
-        if (!name || !["user", "admin"].includes(role)) {
+    const verify = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/token", { withCredentials: true });
+        const { role,name } = res.data;
+        setName(name);
+        if (allowedRoles.includes(role)) {
+          setAuthorized(true);
+        } else {
           nav("/login");
-          return;
         }
-        setRole(role);
-      })
-      .catch(() => {
+      } catch {
         nav("/login");
-      });
-  }, [nav]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    verify();
+  }, [allowedRoles, nav]);
 
-  if (!role) return <p>Loading...</p>; // avoid rendering until role is known
-
-  return (
-    <Routes>
-      {role === "user" && <Route path="/*" element={<Dash />} />}
-      {role === "admin" && <Route path="/*" element={<Admin />} />}
-    </Routes>
-  );
+  if (loading) return <p>Loading...</p>;
+   return authorized
+    ? React.cloneElement(children, { name })
+    : null;
 }
-    

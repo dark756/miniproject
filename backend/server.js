@@ -54,7 +54,7 @@ app.post("/login", async (req, res) => {
       path:"/",
       maxAge: 1000 * 60 * 30 
     });    
-    res.json({  status:"success", statusMessage:"login successful and cookie is set"});
+    res.json({ role:user[0].role, status:"success", statusMessage:"login successful and cookie is set"});
   } catch (err) {
     console.error(err);
     res.status(500).json({ statusMessage: "Internal server error" });
@@ -63,17 +63,17 @@ app.post("/login", async (req, res) => {
 
 
 
-app.get("/dashboard", verifyCookies, (req, res) => {
-  console.log(req.token);
-  res.json({ name: req.token.name, status:"success",statusMessage:"jwt verfified"});
-});
+// app.get("/dashboard", verifyCookies, (req, res) => {
+//   console.log(req.token);
+//   res.json({ name: req.token.name, status:"success",statusMessage:"jwt verfified"});
+// });
 
 
 
-app.get("/admin", verifyCookies, (req, res) => {
-  console.log(req.token);
-  res.json({ name: req.token.name, status:"success",statusMessage:"jwt verfified"});
-});
+// app.get("/admin", verifyCookies, (req, res) => {
+//   console.log(req.token);
+//   res.json({ name: req.token.name, status:"success",statusMessage:"jwt verfified"});
+// });
 
 
 app.get("/token", verifyCookies, (req, res) => {
@@ -81,7 +81,22 @@ app.get("/token", verifyCookies, (req, res) => {
   res.json({ name: req.token.name,role:req.token.role, status:"success",statusMessage:"jwt verfified"});
 });
 
+app.get("/get-users",verifyCookies,async (req,res)=>{
+  if (req.token.role!=="admin")
+  {
+    return res.status(400).json({ statusMessage: "No access for user", status: "failure" });
+  }
+  try {
+    const users = await db.collection("users").find({}).toArray();
+    res.json({ users, status:"success", statusMessage:"returned list of users"});
+  }
+  catch(er)
+  {
+    console.log(er);
+    return res.status(400).json({ statusMessage: `unknown error: ${er}`, status: "failure" });
+  }
 
+})
 
 
 
