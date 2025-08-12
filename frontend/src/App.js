@@ -1,6 +1,8 @@
 // src/App.js
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
+import Login from "./Login";
+import Dash from "./Dash";
 
 // Page components (placeholder for now)
 function Home() {
@@ -34,6 +36,8 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/users" element={<Users />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dash />} />
         {/* Catch-all for 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
