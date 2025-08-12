@@ -21,15 +21,14 @@ MongoClient.connect(process.env.MONGO_URI).then(client => {db = client.db();})
 function verifyCookies(req,res,next)
 {
   const token=req.cookies?.access_token;
-  console.log(req.cookies?.access_token)
   if (!token)
   {
-    console.log("hi")
+    console.log("No token found from backend")
     return res.status(400).json({status:"failure",statusMessage:"jwt not found"})
   }
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
-      console.log("hi",err)
+      console.log("error in verifying token: ",err)
       return res.status(400).json({ message: "Invalid jwt" });
     }
     req.token = decoded; 
@@ -47,15 +46,15 @@ app.post("/login", async (req, res) => {
     if (user.length !== 1) {
       return res.status(400).json({ statusMessage: "Username or password incorrect", status: "failure" });
     }
-    const token = jwt.sign({ username: user[0].username, name:user[0].name }, process.env.JWT_SECRET, { expiresIn: "30min" });
-  res.cookie("access_token", token, {
+    const token = jwt.sign({ username: user[0].username, name:user[0].name, role:user[0].role}, process.env.JWT_SECRET, { expiresIn: "30min" });
+    res.cookie("access_token", token, {
       httpOnly: true,  
       secure: false,    
       sameSite: "lax",
       path:"/",
       maxAge: 1000 * 60 * 30 
     });    
-    res.json({ status:"success", "statusMessage":"login successful and cookie is set"});
+    res.json({ status:"success", statusMessage:"login successful and cookie is set"});
   } catch (err) {
     console.error(err);
     res.status(500).json({ statusMessage: "Internal server error" });
@@ -65,10 +64,29 @@ app.post("/login", async (req, res) => {
 
 
 app.get("/dashboard", verifyCookies, (req, res) => {
+  console.log(req.token);
   res.json({ name: req.token.name, status:"success",statusMessage:"jwt verfified"});
 });
 
 
+
+app.get("/admin", verifyCookies, (req, res) => {
+  console.log(req.token);
+  res.json({ name: req.token.name, status:"success",statusMessage:"jwt verfified"});
+});
+
+
+
+app.get("/logout", ( req, res) => {
+  res.cookie("access_token", {}, {
+      httpOnly: true,  
+      secure: false,    
+      sameSite: "lax",
+      path:"/",
+      maxAge: 0
+    });    
+  res.json({ status:"success",statusMessage:"token erased"});
+});
 
 
 

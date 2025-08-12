@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export default function Dash() {
+export default function Admin() {
   const navigate = useNavigate();
   const [name, setName] = useState(null);
 
   useEffect(() => {
     const getname = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/dashboard", { withCredentials: true , validateStatus:()=>true});
+        const res = await axios.get("http://localhost:5000/admin", { withCredentials: true , validateStatus:()=>true});
         console.log(res.data);
         if (res.status === 200) {
           setName(res.data.name);

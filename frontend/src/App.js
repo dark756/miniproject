@@ -1,8 +1,10 @@
 // src/App.js
 import React from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link,  useNavigate } from "react-router-dom";
 import Login from "./Login";
 import Dash from "./Dash";
+import axios from "axios";
+import Admin from "./Admin";
 
 // Page components (placeholder for now)
 function Home() {
@@ -22,6 +24,12 @@ function NotFound() {
 }
 
 export default function App() {
+  const navigate=useNavigate();
+  const logout=()=>
+  {
+    axios.get("http://localhost:5000/logout",{withCredentials:true})
+    navigate("/login")
+  }
   return (
     <div>
       {/* Navigation */}
@@ -29,6 +37,8 @@ export default function App() {
         <Link to="/">Home</Link>
         <Link to="/users">Users</Link>
         <Link to="/products">Products</Link>
+        <button onClick={logout}>logout</button>
+
       </nav>
 
       {/* Routes */}
@@ -38,6 +48,7 @@ export default function App() {
         <Route path="/products" element={<Products />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dash />} />
+        <Route path="/admin" element={<Admin />} />
         {/* Catch-all for 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
