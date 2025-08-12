@@ -101,6 +101,7 @@ app.get("/get-users",verifyCookies,async (req,res)=>{
 
 
 app.get("/logout", ( req, res) => {
+  
   res.cookie("access_token", {}, {
       httpOnly: true,  
       secure: false,    

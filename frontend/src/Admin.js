@@ -1,26 +1,165 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
+import { FixedSizeList as List } from "react-window";
+import { Routes, Route, Link,  useNavigate } from "react-router-dom";
+import AddUser from "./AddUser";
 
-export default function Admin({name}) {
+export default function Admin({ name }) {
   const navigate = useNavigate();
-  const [data, setData]=useState(null);
-  useEffect(()=>
-    {
-        axios.get("http://localhost:5000/get-users",{withCredentials:true, validateStatus:()=>true}).then(
-            (res)=>
-            {
-                setData(res.data.users);
-            }
-        )
-    },[])
+  const [data, setData] = useState([]);
+
+  // State for search, filter, sort
+  const [search, setSearch] = useState("");
+  const [filterJobRole, setFilterJobRole] = useState(""); // filter by jobrole
+  const [sortBy, setSortBy] = useState(""); // e.g. "name", "username"
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/get-users", {
+        withCredentials: true,
+        validateStatus: () => true,
+      })
+      .then((res) => {
+        setData(res.data.users || []);
+      });
+  }, []);
+
+  // Filter + search + sort data
+  const filteredData = useMemo(() => {
+    let filtered = [...data];
+
+    // Search by name or username or email (case-insensitive)
+    if (search.trim()) {
+      const lower = search.toLowerCase();
+      filtered = filtered.filter(
+        (u) =>
+          u.name.toLowerCase().includes(lower) ||
+          u.username.toLowerCase().includes(lower) ||
+          (u.email && u.email.toLowerCase().includes(lower))
+      );
+    }
+
+    // Filter by jobrole if selected
+    if (filterJobRole) {
+      filtered = filtered.filter(
+        (u) => u.jobrole && u.jobrole === filterJobRole
+      );
+    }
+
+    // Sort
+    if (sortBy) {
+      filtered.sort((a, b) => {
+        if (!a[sortBy]) return 1;
+        if (!b[sortBy]) return -1;
+        return a[sortBy].localeCompare(b[sortBy]);
+      });
+    }
+
+    return filtered;
+  }, [data, search, filterJobRole, sortBy]);
+
+  const Row = ({ index, style }) => {
+    const user = filteredData[index];
+    return (
+      <div
+        style={{
+          ...style,
+          top: `${parseFloat(style.top) + 5}px`,
+          height: `${parseFloat(style.height) - 5}px`,
+          paddingLeft: "10px",
+          paddingRight: "10px",
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          style={{
+            border: "1px solid #ccc",
+            borderRadius: "8px",
+            padding: "10px",
+            background: "#f9f9f9",
+            boxSizing: "border-box",
+            display: "flex",
+            alignItems: "center",
+            gap: "20px",
+          }}
+        >
+          <strong>{user.name}</strong>
+          <small>username: {user.username}</small>
+          {user.dob && <small>DOB: {user.dob}</small>}
+          {user.email && <small>Email: {user.email}</small>}
+          {user.jobrole && <small>Job Role: {user.jobrole}</small>}
+        </div>
+      </div>
+    );
+  };
+
+  // Get unique job roles for filter dropdown
+  const jobRoles = [...new Set(data.map((u) => u.jobrole).filter(Boolean))];
+
   return (
-    <div>
-        <p>Welcome {name}</p>
-        {data && data.map((user)=>
-        {
-            return <p>{user.username}. {user.name}</p>
-        })}
+    <div style={{ marginTop: "20px", padding: "0 10px" }}>
+        <Routes>
+            <Route path="/add-user" element={<AddUser />} />
+            </Routes>
+      {/* Search and filter controls */}
+      <div
+        style={{
+          marginBottom: "10px",
+          display: "flex",
+          gap: "10px",
+          flexWrap: "wrap",
+          alignItems: "center",
+        }}
+      >
+        <Link to='./add-user'>+</Link>
+        <input
+          type="search"
+          placeholder="Search by name, username, or email"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ flex: "1 1 300px", padding: "6px 10px" }}
+        />
+
+        <select
+          value={filterJobRole}
+          onChange={(e) => setFilterJobRole(e.target.value)}
+          style={{ padding: "6px 10px" }}
+        >
+          <option value="">All Job Roles</option>
+          {jobRoles.map((role) => (
+            <option key={role} value={role}>
+              {role}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          style={{ padding: "6px 10px" }}
+        >
+          <option value="">Sort By</option>
+          <option value="name">Name</option>
+          <option value="username">Username</option>
+          <option value="jobrole">Job Role</option>
+        </select>
+
+      </div>
+
+      {/* The list */}
+      {filteredData.length > 0 ? (
+        <List
+          height={window.innerHeight * 0.8}
+          itemCount={filteredData.length}
+          itemSize={53}
+          width={"100%"}
+          style={{ overflowX: "hidden" }}
+        >
+          {Row}
+        </List>
+      ) : (
+        <p>No users found.</p>
+      )}
     </div>
   );
 }
