@@ -5,7 +5,7 @@ import axios from "axios";
 export default function Dash() {
   const navigate = useNavigate();
   const [name, setName] = useState(null);
-
+  console.log("dash")
   useEffect(() => {
     const getname = async () => {
       try {

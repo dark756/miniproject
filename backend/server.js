@@ -54,7 +54,7 @@ app.post("/login", async (req, res) => {
       path:"/",
       maxAge: 1000 * 60 * 30 
     });    
-    res.json({ status:"success", statusMessage:"login successful and cookie is set"});
+    res.json({  status:"success", statusMessage:"login successful and cookie is set"});
   } catch (err) {
     console.error(err);
     res.status(500).json({ statusMessage: "Internal server error" });
@@ -74,6 +74,14 @@ app.get("/admin", verifyCookies, (req, res) => {
   console.log(req.token);
   res.json({ name: req.token.name, status:"success",statusMessage:"jwt verfified"});
 });
+
+
+app.get("/token", verifyCookies, (req, res) => {
+  console.log(req.token);
+  res.json({ name: req.token.name,role:req.token.role, status:"success",statusMessage:"jwt verfified"});
+});
+
+
 
 
 
