@@ -4,7 +4,7 @@ import { MongoClient } from "mongodb";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 
-//              nodemon server.js
+//              nodemon server.js 
 
 dotenv.config();
 const app = express();
