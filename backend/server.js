@@ -61,20 +61,15 @@ app.post("/login", async (req, res) => {
   }
 });
 
-
-
 // app.get("/dashboard", verifyCookies, (req, res) => {
 //   console.log(req.token);
 //   res.json({ name: req.token.name, status:"success",statusMessage:"jwt verfified"});
 // });
 
-
-
 // app.get("/admin", verifyCookies, (req, res) => {
 //   console.log(req.token);
 //   res.json({ name: req.token.name, status:"success",statusMessage:"jwt verfified"});
 // });
-
 
 app.get("/token", verifyCookies, (req, res) => {
   console.log(req.token);
@@ -99,7 +94,6 @@ app.get("/get-users",verifyCookies,async (req,res)=>{
 })
 
 
-
 app.get("/logout", ( req, res) => {
   
   res.cookie("access_token", {}, {
@@ -112,6 +106,32 @@ app.get("/logout", ( req, res) => {
   res.json({ status:"success",statusMessage:"token erased"});
 });
 
+app.post("/add-user",verifyCookies,async (req,res)=>
+{
+  const {name, email, dob, jobrole}=req.body;
+  
+  try {
+    const {username} = await db.collection("usernames").findOneAndUpdate(
+  {},
+  { $inc: { username: 1 } },
+  { upsert: true, returnDocument: "after" }
+);
+
+// const username = result.username;
+    const body={name, email, DOB:dob, jobrole,
+    role:'user',
+    password:'admin',
+    username
+  };
+    db.collection("users").insertOne(body);
+    res.json({password:'admin', username,  status:"success", statusMessage:"added user to db"});
+  }
+  catch(er)
+  {
+    console.log(er);
+    return res.status(400).json({ statusMessage: `unknown error: ${er}`, status: "failure" });
+  }
+});
 
 
 

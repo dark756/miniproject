@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { FixedSizeList as List } from "react-window";
-import { Routes, Route, Link,  useNavigate } from "react-router-dom";
-import AddUser from "./AddUser";
+import {  useNavigate } from "react-router-dom";
 
 export default function Admin({ name }) {
   const navigate = useNavigate();
@@ -98,9 +97,7 @@ export default function Admin({ name }) {
 
   return (
     <div style={{ marginTop: "20px", padding: "0 10px" }}>
-        <Routes>
-            <Route path="/add-user" element={<AddUser />} />
-            </Routes>
+        
       {/* Search and filter controls */}
       <div
         style={{
@@ -111,7 +108,12 @@ export default function Admin({ name }) {
           alignItems: "center",
         }}
       >
-        <Link to='./add-user'>+</Link>
+        <button
+          onClick={() => navigate("/admin/add-user")}
+          style={{ padding: "6px 12px" }}
+        >
+          +
+        </button>
         <input
           type="search"
           placeholder="Search by name, username, or email"

@@ -5,15 +5,18 @@ export default function AddUser()
     const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [dob, setDob] = useState("");
+  const [user, setUser]=useState("");
   const [jobrole, setJobrole] = useState("");
-  const [status, setStatus]=useState(null);
+  const [status, setStatus]=useState(false);
 const [pass, setPass]=useState('')
-  const handleSubmit=()=>{
+  const handleSubmit=(w)=>{
+    w.preventDefault();
     axios.post("http://localhost:5000/add-user",{name, email, dob, jobrole},{withCredentials:true, validateStatus:()=>true})
     .then(res=>{
         if (res.status===200)
         {
             setPass(res.data.password);
+            setUser(res.data.username);
             setStatus(true)
         }
         else{
@@ -77,9 +80,9 @@ const [pass, setPass]=useState('')
       <button type="submit">Add User</button>
     </form>
     {
-        status && status===true ?(
-            <p>User created password: {pass}</p>
-        ):(<p>couldnt create user</p>)
+        status &&( status===true ?(
+            <p>User created username: "{user}"<br/>password: "{pass}"</p>
+        ):(<p>couldnt create user</p>))
     }
     </div>
   );
