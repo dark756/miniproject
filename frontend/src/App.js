@@ -1,6 +1,6 @@
 // src/App.js
 import React from "react";
-import { Routes, Route, Link,  useNavigate } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import Login from "./Login";
 import RequireAuth from "./PostAuth";
 import axios from "axios";
@@ -26,10 +26,9 @@ function NotFound() {
 }
 
 export default function App() {
-  const navigate=useNavigate();
-  const logout=()=>
-  {
-    axios.get("http://localhost:5000/logout",{withCredentials:true})
+  const navigate = useNavigate();
+  const logout = () => {
+    axios.get("http://localhost:5000/logout", { withCredentials: true })
     navigate("/login")
   }
   return (
@@ -49,7 +48,7 @@ export default function App() {
         <Route path="/users" element={<Users />} />
         <Route path="/products" element={<Products />} />
         <Route path="/login" element={<Login />} />
-         <Route path="/dashboard/*" element={<RequireAuth allowedRoles={['user']}><Dash /></RequireAuth>} />
+        <Route path="/dashboard/*" element={<RequireAuth allowedRoles={['user']}><Dash /></RequireAuth>} />
         <Route path="/admin" element={<RequireAuth allowedRoles={['admin']}><Admin /></RequireAuth>} />
         <Route path="/admin/add-user" element={<RequireAuth allowedRoles={['admin']}><AddUser /></RequireAuth>} />
         {/* Catch-all for 404 */}

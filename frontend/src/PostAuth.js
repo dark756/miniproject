@@ -6,29 +6,47 @@ export default function RequireAuth({ allowedRoles, children }) {
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const nav = useNavigate();
-  const [name, setName]=useState(null);
+  const [name, setName] = useState(null);
   useEffect(() => {
     const verify = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/token", { withCredentials: true });
-        const { role,name } = res.data;
+      const res = await axios.get("http://localhost:5000/token", { withCredentials: true, validateStatus: () => true });
+      if (res.status === 200) {
+        const { role, name } = res.data;
         setName(name);
         if (allowedRoles.includes(role)) {
           setAuthorized(true);
         } else {
           nav("/login");
         }
-      } catch {
-        nav("/login");
-      } finally {
         setLoading(false);
+      }
+      else {
+        if (res.status === 404) {
+          const resp = await axios.get("http://localhost:5000/refresh", { withCredentials: true, validateStatus: () => true });
+          if (resp.status === 200) {
+            const { role, name } = resp.data;
+            setName(name);
+            if (allowedRoles.includes(role)) {
+              setAuthorized(true);
+            } else {
+              nav("/login");
+            }
+            setLoading(false);
+          }
+          else {
+            nav("/login")
+          }
+        }
+        else {
+          nav("/login")
+        }
       }
     };
     verify();
   }, [allowedRoles, nav]);
 
   if (loading) return <p>Loading...</p>;
-   return authorized
+  return authorized
     ? React.cloneElement(children, { name })
     : null;
 }

@@ -1,16 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { FixedSizeList as List } from "react-window";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Admin({ name }) {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
-
-  // State for search, filter, sort
   const [search, setSearch] = useState("");
-  const [filterJobRole, setFilterJobRole] = useState(""); // filter by jobrole
-  const [sortBy, setSortBy] = useState(""); // e.g. "name", "username"
+  const [filterJobRole, setFilterJobRole] = useState("");
+  const [sortBy, setSortBy] = useState("");
 
   useEffect(() => {
     axios
@@ -23,11 +21,8 @@ export default function Admin({ name }) {
       });
   }, []);
 
-  // Filter + search + sort data
   const filteredData = useMemo(() => {
     let filtered = [...data];
-
-    // Search by name or username or email (case-insensitive)
     if (search.trim()) {
       const lower = search.toLowerCase();
       filtered = filtered.filter(
@@ -37,15 +32,11 @@ export default function Admin({ name }) {
           (u.email && u.email.toLowerCase().includes(lower))
       );
     }
-
-    // Filter by jobrole if selected
     if (filterJobRole) {
       filtered = filtered.filter(
         (u) => u.jobrole && u.jobrole === filterJobRole
       );
     }
-
-    // Sort
     if (sortBy) {
       filtered.sort((a, b) => {
         if (!a[sortBy]) return 1;
@@ -75,7 +66,7 @@ export default function Admin({ name }) {
             border: "1px solid #ccc",
             borderRadius: "8px",
             padding: "10px",
-            background: "#f9f9f9",
+            background: "#f9f9f9ff",
             boxSizing: "border-box",
             display: "flex",
             alignItems: "center",
@@ -97,7 +88,7 @@ export default function Admin({ name }) {
 
   return (
     <div style={{ marginTop: "20px", padding: "0 10px" }}>
-        
+
       {/* Search and filter controls */}
       <div
         style={{
