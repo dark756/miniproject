@@ -19,7 +19,7 @@ MongoClient.connect(process.env.MONGO_URI).then(client => { db = client.db(); })
   .catch(err => console.error(err));
 
 function verifyCookies(req, res, next) {
-  const token = req.cookies?.access_token;
+  const token = req.cookies?.access_token ;
   if (!token) {
     console.log("No token found from backend")
     return res.status(400).json({ status: "failure", statusMessage: "jwt not found" })

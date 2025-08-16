@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 
 
 export default function Login() {
@@ -8,7 +9,9 @@ export default function Login() {
     const [username, setUsername] = useState("");
     const navigate = useNavigate()
     const [failed, setFailed] = useState(false);
-
+    const handleoauth=(e)=>{
+       
+    }
     const handle = (e) => {
         e.preventDefault();
         axios.post("http://localhost:5000/login",
@@ -52,12 +55,16 @@ export default function Login() {
                 ></input>
                 <p><br /></p>
                 <button type="submit">submit</button>
+                <p><br /></p>
             </form>
             {
                 failed && (
                     <p>incorrect username or password please try again</p>
                 )
             }
+            <GoogleLogin onSuccess={(e)=>handleoauth(e)} onError={()=>{
+                navigate("/login")
+            }}/>
         </div>
     )
 }
