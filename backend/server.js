@@ -94,6 +94,36 @@ app.post("/login", async (req, res) => {
   }
 });
 
+
+app.post("/glogin", async (req, res) => {
+  const {email } = req.body;
+  try {
+    const user = await db.collection("users").find({email}).toArray();
+    console.log(user)
+
+    if (user.length !== 1) {
+      return res.status(400).json({ statusMessage: "gmail records not found", status: "failure" });
+    }
+    const token = jwt.sign({ username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: 2 });
+    const refresh_token = jwt.sign({ username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: "30d" });
+    db.collection("users").updateOne({email}, { $set: { refresh_token } });
+    res.cookie("access_token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+      //maxAge: 1000 * 60 * 30 
+    });
+    res.json({ role: user[0].role, status: "success", statusMessage: "login successful and cookie is set" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ statusMessage: "Internal server error" });
+  }
+});
+
+
+
+
 app.get("/token", verifyCookies, (req, res) => {
   console.log(req.token);
   res.json({ name: req.token.name, role: req.token.role, status: "success", statusMessage: "jwt verfified" });
@@ -129,8 +159,15 @@ app.get("/logout", (req, res) => {
 
 app.post("/add-user", verifyCookies, async (req, res) => {
   const { name, email, dob, jobrole } = req.body;
-
+  
   try {
+    const existingUser = await db.collection("users").findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        status: "failure",
+        statusMessage: "Email already exists"
+      });
+    }
     const { username } = await db.collection("usernames").findOneAndUpdate(
       {},
       { $inc: { username: 1 } },

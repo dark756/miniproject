@@ -7,6 +7,7 @@ export default function AddUser() {
   const [user, setUser] = useState("");
   const [jobrole, setJobrole] = useState("");
   const [status, setStatus] = useState(false);
+    const [error, setError] = useState(false);
   const [pass, setPass] = useState('')
   const handleSubmit = (w) => {
     w.preventDefault();
@@ -18,7 +19,8 @@ export default function AddUser() {
           setStatus(true)
         }
         else {
-          setStatus(false);
+          console.log("tanuj gandu")
+          setError(true);
         }
       })
   }
@@ -78,9 +80,12 @@ export default function AddUser() {
       <button type="submit">Add User</button>
     </form>
     {
-      status && (status === true ? (
+      status && (status === true && (
         <p>User created username: "{user}"<br />password: "{pass}"</p>
-      ) : (<p>couldnt create user</p>))
+      ))
+    }
+    {
+      error===true && (<p>couldnt create user</p>)
     }
   </div>
   );

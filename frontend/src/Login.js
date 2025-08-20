@@ -2,15 +2,32 @@ import { useState } from "react";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
-
-
+import {jwtDecode} from "jwt-decode";
 export default function Login() {
     const [password, setPassword] = useState("");
     const [username, setUsername] = useState("");
     const navigate = useNavigate()
     const [failed, setFailed] = useState(false);
-    const handleoauth=(e)=>{
-       
+    const [gfailed, setgFailed] = useState(false);
+    const handleoauth=async (e)=>{
+       try{
+        const token=e.credential;
+        const {email}=jwtDecode(token);
+        console.log(email)
+        const res=await axios.post("http://localhost:5000/glogin",{email},{validateStatus:()=>true, withCredentials:true});
+        console.log(res);
+        if (res.status!==200)
+        {
+            setgFailed(true);
+        }
+        else{
+            navigate("/dashboard")
+        }
+       }
+       catch(er)
+       {
+        console.log(`error: ${er}`)
+       }
     }
     const handle = (e) => {
         e.preventDefault();
@@ -65,6 +82,11 @@ export default function Login() {
             <GoogleLogin onSuccess={(e)=>handleoauth(e)} onError={()=>{
                 navigate("/login")
             }}/>
+            {
+                gfailed && (
+                    <p>Could not login via gmail...<br/>plase try again with a valid email</p>
+                )
+            }
         </div>
     )
 }
