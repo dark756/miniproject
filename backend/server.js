@@ -157,7 +157,40 @@ app.get("/logout", (req, res) => {
   res.json({ status: "success", statusMessage: "token erased" });
 });
 
-app.post("/add-user", verifyCookies, async (req, res) => {
+app.get("/check-username", async(req,res)=>
+{
+  const user=req.query.username;
+  if(!user || user==="")
+  {
+    return res.status(200).json({
+    available:null,
+    message:"username is empty/not given"
+  })
+  }
+  const users = await db.collection("users").find({ username: user }).toArray();
+  if (users.length===0)
+  {
+    return res.status(200).json({
+    available:true,
+    message:"username is available"
+  })
+  }
+  
+  return res.status(200).json({
+    available:false,
+    message:"username is not available"
+  })
+});
+
+
+
+/////// make changes::: 
+/// add user then redirect to dash with appropriate jwt with session
+///add fucnionality for custom username and pasword (salt later)
+
+
+
+app.post("/add-user", async (req, res) => {
   const { name, email, dob, jobrole } = req.body;
   
   try {

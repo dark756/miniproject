@@ -83,13 +83,11 @@ export default function Admin({ name }) {
     );
   };
 
-  // Get unique job roles for filter dropdown
   const jobRoles = [...new Set(data.map((u) => u.jobrole).filter(Boolean))];
 
   return (
     <div style={{ marginTop: "20px", padding: "0 10px" }}>
 
-      {/* Search and filter controls */}
       <div
         style={{
           marginBottom: "10px",
@@ -99,12 +97,12 @@ export default function Admin({ name }) {
           alignItems: "center",
         }}
       >
-        <button
+        {/* <button
           onClick={() => navigate("/admin/add-user")}
           style={{ padding: "6px 12px" }}
         >
           +
-        </button>
+        </button> */}
         <input
           type="search"
           placeholder="Search by name, username, or email"
@@ -139,7 +137,6 @@ export default function Admin({ name }) {
 
       </div>
 
-      {/* The list */}
       {filteredData.length > 0 ? (
         <List
           height={window.innerHeight * 0.8}

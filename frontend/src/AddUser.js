@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 export default function AddUser() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -8,24 +8,61 @@ export default function AddUser() {
   const [jobrole, setJobrole] = useState("");
   const [status, setStatus] = useState(false);
     const [error, setError] = useState(false);
+    const [username, setUsername]=useState("")
+    const [available, setAvailable]=useState(null);
   const [pass, setPass] = useState('')
+  useEffect(()=>
+  {
+    const timer = setTimeout(async () => {
+      try {
+        if(!username ||username==="")
+        {
+          setAvailable(null);
+          return;
+        }
+        const res = await axios.get(`http://localhost:5000/check-username?username=${username}`);
+        setAvailable(res.data.available); 
+      } catch (err) {
+        console.error("Error checking username:", err);
+        setAvailable(null);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  },[username])
   const handleSubmit = (w) => {
     w.preventDefault();
-    axios.post("http://localhost:5000/add-user", { name, email, dob, jobrole }, { withCredentials: true, validateStatus: () => true })
+    axios.post("http://localhost:5000/add-user", { username, name, email, dob, jobrole }, { withCredentials: true, validateStatus: () => true })
       .then(res => {
         if (res.status === 200) {
           setPass(res.data.password);
           setUser(res.data.username);
+          setError(false);
           setStatus(true)
         }
         else {
-          console.log("tanuj gandu")
+          console.log(res.data.statusMessage)
           setError(true);
         }
       })
   }
   return (<div>
     <form onSubmit={handleSubmit}>
+      <div>
+        <label>
+          Username:{" "}
+          <input
+            type="text"
+            required
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter username"
+          />
+        </label>
+          {available === true && <p style={{ color: "green" }}>✅ Username available</p>}
+          {available === false && <p style={{ color: "red" }}>❌ Username taken</p>}  
+      </div>
+
       <div>
         <label>
           Name:{" "}

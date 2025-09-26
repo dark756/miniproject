@@ -50,7 +50,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard/*" element={<RequireAuth allowedRoles={['user']}><Dash /></RequireAuth>} />
         <Route path="/admin" element={<RequireAuth allowedRoles={['admin']}><Admin /></RequireAuth>} />
-        <Route path="/admin/add-user" element={<RequireAuth allowedRoles={['admin']}><AddUser /></RequireAuth>} />
+        <Route path="/add-user" element={<AddUser/>}/>
         {/* Catch-all for 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -74,6 +74,13 @@ export default function Login() {
                 <button type="submit">submit</button>
                 <p><br /></p>
             </form>
+            <p>New User? CLick this button to </p>
+            <button
+          onClick={() => navigate("/add-user")}
+        //   style={{ padding: "6px 12px" }}
+        >
+          Sign Up
+        </button>
             {
                 failed && (
                     <p>incorrect username or password please try again</p>
