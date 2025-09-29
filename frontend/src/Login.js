@@ -12,13 +12,18 @@ export default function Login() {
     const handleoauth=async (e)=>{
        try{
         const token=e.credential;
-        const {email}=jwtDecode(token);
-        console.log(email)
+        const info=jwtDecode(token);
+        const {email}=info;
+        console.log(info);
         const res=await axios.post("http://localhost:5000/glogin",{email},{validateStatus:()=>true, withCredentials:true});
         console.log(res);
-        if (res.status!==200)
+        if (res.status!==200 && res.status!==201)
         {
             setgFailed(true);
+        }
+        else if(res.status===201)
+        {
+            navigate("/details")//make api send cookie to allow details page navigation
         }
         else{
             navigate("/dashboard")
@@ -91,7 +96,7 @@ export default function Login() {
             }}/>
             {
                 gfailed && (
-                    <p>Could not login via gmail...<br/>plase try again with a valid email</p>
+                    <p>Could not login via gmail...<br/>please try again</p>
                 )
             }
         </div>

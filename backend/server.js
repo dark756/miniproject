@@ -102,7 +102,7 @@ app.post("/glogin", async (req, res) => {
     console.log(user)
 
     if (user.length !== 1) {
-      return res.status(400).json({ statusMessage: "gmail records not found", status: "failure" });
+      return res.status(400).json({ statusMessage: "gmail records not found", status: "failure" });//add user here
     }
     const token = jwt.sign({ username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: 2 });
     const refresh_token = jwt.sign({ username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: "30d" });
@@ -184,14 +184,9 @@ app.get("/check-username", async(req,res)=>
 
 
 
-/////// make changes::: 
-/// add user then redirect to dash with appropriate jwt with session
-///add fucnionality for custom username and pasword (salt later)
-
-
 
 app.post("/add-user", async (req, res) => {
-  const { name, email, dob, jobrole } = req.body;
+  const {username, pass, name, email, dob, jobrole } = req.body;
   
   try {
     const existingUser = await db.collection("users").findOne({ email });
@@ -201,20 +196,38 @@ app.post("/add-user", async (req, res) => {
         statusMessage: "Email already exists"
       });
     }
-    const { username } = await db.collection("usernames").findOneAndUpdate(
-      {},
-      { $inc: { username: 1 } },
-      { upsert: true, returnDocument: "after" }
-    );
+    const existingUsername = await db.collection("users").findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({
+        status: "failure",
+        statusMessage: "username already exists"
+      });
+    }
+    // const { username } = await db.collection("usernames").findOneAndUpdate(
+    //   {},
+    //   { $inc: { username: 1 } },
+    //   { upsert: true, returnDocument: "after" }
+    // );
 
     const body = {
       name, email, DOB: dob, jobrole,
       role: 'user',
-      password: 'admin',
+      password: pass,
       username
     };
     db.collection("users").insertOne(body);
-    res.json({ password: 'admin', username, status: "success", statusMessage: "added user to db" });
+
+    const token = jwt.sign({ username, name , role: "user" }, process.env.JWT_SECRET, { expiresIn: 2 });
+    const refresh_token = jwt.sign({username, name , role: "user"}, process.env.JWT_SECRET, { expiresIn: "30d" });
+    db.collection("users").updateOne({username}, { $set: { refresh_token } });
+
+    res.status(200).json({ username, status: "success", statusMessage: "added user to db" }).cookie("access_token", token, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0
+  });
   }
   catch (er) {
     console.log(er);
