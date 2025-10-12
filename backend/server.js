@@ -19,7 +19,7 @@ MongoClient.connect(process.env.MONGO_URI).then(client => { db = client.db(); })
   .catch(err => console.error(err));
 
 function verifyCookies(req, res, next) {
-  const token = req.cookies?.access_token ;
+  const token = req.cookies?.access_token;
   if (!token) {
     console.log("No token found from backend")
     return res.status(400).json({ status: "failure", statusMessage: "jwt not found" })
@@ -72,13 +72,13 @@ app.post("/login", async (req, res) => {
   const query = { username, password }
   try {
     const user = await db.collection("users").find(query).toArray();
-    console.log(user)
+    //console.log(user)
 
     if (user.length !== 1) {
       return res.status(400).json({ statusMessage: "Username or password incorrect", status: "failure" });
     }
-    const token = jwt.sign({ username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: 2 });
-    const refresh_token = jwt.sign({ username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: "30d" });
+    const token = jwt.sign({ email: user[0].email, username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: 2 });
+    const refresh_token = jwt.sign({ email: user[0].email, username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: "30d" });
     db.collection("users").updateOne(query, { $set: { refresh_token } });
     res.cookie("access_token", token, {
       httpOnly: true,
@@ -96,17 +96,41 @@ app.post("/login", async (req, res) => {
 
 
 app.post("/glogin", async (req, res) => {
-  const {email } = req.body;
+  const info = req.body;
+  //console.log(info);
+  const { name, email } = info;
   try {
-    const user = await db.collection("users").find({email}).toArray();
-    console.log(user)
+    const user = await db.collection("users").find({ email }).toArray();
+    //console.log(user)
 
     if (user.length !== 1) {
-      return res.status(400).json({ statusMessage: "gmail records not found", status: "failure" });//add user here
+      if (user.length === 0) {
+        //add user
+        const body = {
+          name, email, DOB: null, jobrole: null,
+          role: 'user',
+          password: null,
+          username: null
+        };
+        db.collection("users").insertOne(body);
+        const token = jwt.sign({ email, name, role: "user" }, process.env.JWT_SECRET, { expiresIn: 2 });
+        const refresh_token = jwt.sign({ email, name, role: "user" }, process.env.JWT_SECRET, { expiresIn: "30d" });
+        db.collection("users").updateOne({ email }, { $set: { refresh_token } });
+        res.cookie("access_token", token, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+          path: "/",
+          //maxAge: 1000 * 60 * 30 
+        });
+        res.json({ role: "user", status: "success", statusMessage: "login successful and cookie is set" });
+
+      }
+      return res.status(400).json({ statusMessage: "invalid email address", status: "failure" });//add user here
     }
-    const token = jwt.sign({ username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: 2 });
-    const refresh_token = jwt.sign({ username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: "30d" });
-    db.collection("users").updateOne({email}, { $set: { refresh_token } });
+    const token = jwt.sign({ email, username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: 2 });
+    const refresh_token = jwt.sign({email, username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: "30d" });
+    db.collection("users").updateOne({ email }, { $set: { refresh_token } });
     res.cookie("access_token", token, {
       httpOnly: true,
       secure: false,
@@ -125,7 +149,7 @@ app.post("/glogin", async (req, res) => {
 
 
 app.get("/token", verifyCookies, (req, res) => {
-  console.log(req.token);
+  // console.log(req.token);
   res.json({ name: req.token.name, role: req.token.role, status: "success", statusMessage: "jwt verfified" });
 });
 
@@ -157,28 +181,25 @@ app.get("/logout", (req, res) => {
   res.json({ status: "success", statusMessage: "token erased" });
 });
 
-app.get("/check-username", async(req,res)=>
-{
-  const user=req.query.username;
-  if(!user || user==="")
-  {
+app.get("/check-username", async (req, res) => {
+  const user = req.query.username;
+  if (!user || user === "") {
     return res.status(200).json({
-    available:null,
-    message:"username is empty/not given"
-  })
+      available: null,
+      message: "username is empty/not given"
+    })
   }
   const users = await db.collection("users").find({ username: user }).toArray();
-  if (users.length===0)
-  {
+  if (users.length === 0) {
     return res.status(200).json({
-    available:true,
-    message:"username is available"
-  })
+      available: true,
+      message: "username is available"
+    })
   }
-  
+
   return res.status(200).json({
-    available:false,
-    message:"username is not available"
+    available: false,
+    message: "username is not available"
   })
 });
 
@@ -186,8 +207,8 @@ app.get("/check-username", async(req,res)=>
 
 
 app.post("/add-user", async (req, res) => {
-  const {username, pass, name, email, dob, jobrole } = req.body;
-  
+  const { username, pass, name, email, dob, jobrole } = req.body;
+
   try {
     const existingUser = await db.collection("users").findOne({ email });
     if (existingUser) {
@@ -217,17 +238,18 @@ app.post("/add-user", async (req, res) => {
     };
     db.collection("users").insertOne(body);
 
-    const token = jwt.sign({ username, name , role: "user" }, process.env.JWT_SECRET, { expiresIn: 2 });
-    const refresh_token = jwt.sign({username, name , role: "user"}, process.env.JWT_SECRET, { expiresIn: "30d" });
-    db.collection("users").updateOne({username}, { $set: { refresh_token } });
+    const token = jwt.sign({ email,username, name, role: "user" }, process.env.JWT_SECRET, { expiresIn: 600 });
+    const refresh_token = jwt.sign({ email, username, name, role: "user" }, process.env.JWT_SECRET, { expiresIn: "30d" });
+    db.collection("users").updateOne({ username }, { $set: { refresh_token } });
+    res.cookie("access_token", token, {
+      httpOnly: true, 
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+      // maxAge: 0
+    });
+    return res.status(200).json({ username, status: "success", statusMessage: "added user to db" });
 
-    res.status(200).json({ username, status: "success", statusMessage: "added user to db" }).cookie("access_token", token, {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0
-  });
   }
   catch (er) {
     console.log(er);
@@ -236,8 +258,31 @@ app.post("/add-user", async (req, res) => {
 });
 
 
+app.get("/check-details", verifyCookies, async (req, res) => {
+        console.log(req.token);
+    if(req.token.username)
+    {
+      console.log("we have local auth");
+      return res.status(200).json(
+        {
+          details:false
+        }
+      )
+    }
+    if(!req.token.username && req.token.email)
+    {
+      console.log("oauth access");
+      return res.status(200).json(
+        {
+          details:true
+        }
+      )
+    }
 
-
+  return res.status(400).json({
+    statusMessage:"user not found"
+  })
+});
 
 
 

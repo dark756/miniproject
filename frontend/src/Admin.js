@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { FixedSizeList as List } from "react-window";
 import { useNavigate } from "react-router-dom";
+  import { FaTrash } from 'react-icons/fa'; 
 
 export default function Admin({ name }) {
   const navigate = useNavigate();
@@ -48,40 +49,57 @@ export default function Admin({ name }) {
     return filtered;
   }, [data, search, filterJobRole, sortBy]);
 
-  const Row = ({ index, style }) => {
-    const user = filteredData[index];
-    return (
+
+const Row = ({ index, style }) => {
+  const user = filteredData[index];
+  return (
+    <div
+      style={{
+        ...style,
+        top: `${parseFloat(style.top) + 5}px`,
+        height: `${parseFloat(style.height) - 5}px`,
+        paddingLeft: "10px",
+        paddingRight: "10px",
+        boxSizing: "border-box",
+      }}
+    >
       <div
         style={{
-          ...style,
-          top: `${parseFloat(style.top) + 5}px`,
-          height: `${parseFloat(style.height) - 5}px`,
-          paddingLeft: "10px",
-          paddingRight: "10px",
+          border: "1px solid #ccc",
+          borderRadius: "8px",
+          padding: "10px",
+          background: "#f9f9f9ff",
           boxSizing: "border-box",
+          display: "flex",
+          alignItems: "center",
+          gap: "20px",
         }}
       >
-        <div
+        <strong>{user.name}</strong>
+        {user.username && <small>username: {user.username}</small>}
+        {user.dob && <small>DOB: {user.dob}</small>}
+        {user.email && <small>Email: {user.email}</small>}
+        {user.jobrole && <small>Job Role: {user.jobrole}</small>}
+        <button
+          onClick={() => console.log(1)}////////////////////////////////////////////make del function
           style={{
-            border: "1px solid #ccc",
-            borderRadius: "8px",
-            padding: "10px",
-            background: "#f9f9f9ff",
-            boxSizing: "border-box",
+            marginLeft: "auto",
+            backgroundColor: "transparent",
+            color: "#666",
+            border: "none",
+            cursor: "pointer",
+            padding: "5px",
             display: "flex",
             alignItems: "center",
-            gap: "20px",
           }}
         >
-          <strong>{user.name}</strong>
-          <small>username: {user.username}</small>
-          {user.dob && <small>DOB: {user.dob}</small>}
-          {user.email && <small>Email: {user.email}</small>}
-          {user.jobrole && <small>Job Role: {user.jobrole}</small>}
-        </div>
+          <FaTrash size={16} />
+        </button>
       </div>
-    );
-  };
+    </div>
+  );
+};
+
 
   const jobRoles = [...new Set(data.map((u) => u.jobrole).filter(Boolean))];
 

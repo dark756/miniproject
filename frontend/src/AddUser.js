@@ -5,7 +5,6 @@ export default function AddUser() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [dob, setDob] = useState("");
-  const [user, setUser] = useState("");
   const [jobrole, setJobrole] = useState("");
   const [status, setStatus] = useState(false);
     const [error, setError] = useState(false);

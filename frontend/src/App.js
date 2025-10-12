@@ -1,5 +1,5 @@
 // src/App.js
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import Login from "./Login";
 import RequireAuth from "./PostAuth";
@@ -9,22 +9,20 @@ import Admin from "./Admin";
 import AddUser from "./AddUser";
 
 // Page components (placeholder for now)
-function Home() {
-  return <h1>Home Page</h1>;
-}
 
-function Users() {
-  return <h1>Users List</h1>;
-}
-
-function Products() {
-  return <h1>Products Page</h1>;
-}
 
 function NotFound() {
   return <h1>404 - Page Not Found</h1>;
 }
-
+function Home()
+{
+  const nav=useNavigate();
+  useEffect(()=>
+  {
+    nav("/dashboard")
+  },[])
+  
+}
 export default function App() {
   const navigate = useNavigate();
   const logout = () => {
@@ -35,9 +33,7 @@ export default function App() {
     <div>
       {/* Navigation */}
       <nav style={{ display: "flex", gap: "1rem", padding: "1rem", background: "#eee" }}>
-        <Link to="/">Home</Link>
-        <Link to="/users">Users</Link>
-        <Link to="/products">Products</Link>
+        
         <button onClick={logout}>logout</button>
 
       </nav>
@@ -45,8 +41,6 @@ export default function App() {
       {/* Routes */}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/users" element={<Users />} />
-        <Route path="/products" element={<Products />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard/*" element={<RequireAuth allowedRoles={['user']}><Dash /></RequireAuth>} />
         <Route path="/admin" element={<RequireAuth allowedRoles={['admin']}><Admin /></RequireAuth>} />
