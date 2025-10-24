@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function Dash({ name }) {
@@ -27,6 +27,7 @@ export default function Dash({ name }) {
     <div>
       <p>Welcome {name}</p>
       {details ? (<p>you have details...</p>):(<p>you do not have details...</p>)}
+      <button onClick={()=>navigate("/details")}>click me</button>
     </div>
   );
 }

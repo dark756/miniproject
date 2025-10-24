@@ -7,6 +7,7 @@ import axios from "axios";
 import Dash from "./Dash";
 import Admin from "./Admin";
 import AddUser from "./AddUser";
+import Details from "./details";
 
 // Page components (placeholder for now)
 
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard/*" element={<RequireAuth allowedRoles={['user']}><Dash /></RequireAuth>} />
+        <Route path="/details" element={<RequireAuth allowedRoles={['user']}><Details /></RequireAuth>} />
         <Route path="/admin" element={<RequireAuth allowedRoles={['admin']}><Admin /></RequireAuth>} />
         <Route path="/add-user" element={<AddUser/>}/>
         {/* Catch-all for 404 */}

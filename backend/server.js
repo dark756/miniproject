@@ -263,15 +263,31 @@ app.get("/check-details", verifyCookies, async (req, res) => {
     if(req.token.username)
     {
       console.log("we have local auth");
+      const user=db.collection("users").findOne({username:req.token.username})
+      if(user===null)
+      {
+        return res.status(400).json({
+          details:false
+        })
+      }
       return res.status(200).json(
         {
-          details:false
+          details:true,
+          user
         }
       )
     }
     if(!req.token.username && req.token.email)
     {
       console.log("oauth access");
+      const user=db.collection("users").findOne({email:req.token.email})
+      if(user===null)
+      {
+        console.log("not found")
+        return res.status(400).json({
+          details:false
+        })
+      }
       return res.status(200).json(
         {
           details:true
