@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 export default function AddUser() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [dob, setDob] = useState("");
-  const [jobrole, setJobrole] = useState("");
+  // const [dob, setDob] = useState("");
+  // const [jobrole, setJobrole] = useState("");
   const [status, setStatus] = useState(false);
     const [error, setError] = useState(false);
     const [username, setUsername]=useState("")
@@ -77,7 +77,7 @@ useEffect(()=>
 
   const handleSubmit = (w) => {
     w.preventDefault();
-    axios.post("http://localhost:5000/add-user", { username, name, pass, email, dob, jobrole }, { withCredentials: true, validateStatus: () => true })
+    axios.post("http://localhost:5000/add-user", { username, name, pass, email }, { withCredentials: true, validateStatus: () => true })
       .then(res => {
         if (res.status === 200) {
           setError(false);
@@ -169,7 +169,7 @@ useEffect(()=>
         </label>
       </div>
 
-      <div>
+      {/* <div>
         <label>
           Date of Birth:{" "}
           <input
@@ -192,7 +192,7 @@ useEffect(()=>
             placeholder="Enter job role"
           />
         </label>
-      </div>
+      </div> */}
 
       <button type="submit"
       disabled={!available || !confirmPass}

@@ -107,7 +107,7 @@ app.post("/glogin", async (req, res) => {
       if (user.length === 0) {
         //add user
         const body = {
-          name, email, DOB: null, jobrole: null,
+          name, email,
           role: 'user',
           password: null,
           username: null
@@ -207,7 +207,7 @@ app.get("/check-username", async (req, res) => {
 
 
 app.post("/add-user", async (req, res) => {
-  const { username, pass, name, email, dob, jobrole } = req.body;
+  const { username, pass, name, email} = req.body;
 
   try {
     const existingUser = await db.collection("users").findOne({ email });
@@ -231,7 +231,7 @@ app.post("/add-user", async (req, res) => {
     // );
 
     const body = {
-      name, email, DOB: dob, jobrole,
+      name, email, 
       role: 'user',
       password: pass,
       username
@@ -259,38 +259,38 @@ app.post("/add-user", async (req, res) => {
 
 
 app.get("/check-details", verifyCookies, async (req, res) => {
-        console.log(req.token);
+        // console.log(`"${req.token.username}"`);
     if(req.token.username)
     {
       console.log("we have local auth");
-      const user=db.collection("users").findOne({username:req.token.username})
-      if(user===null)
+      const {details}=await db.collection("users").findOne({username:req.token.username})
+      // console.log(details?details:"hi");
+      if(details===null || !details)
       {
-        return res.status(400).json({
-          details:false
+        return res.status(200).json({
+          detailsFound:false
         })
       }
       return res.status(200).json(
         {
-          details:true,
-          user
+          detailsFound:true,
+          details
         }
       )
     }
     if(!req.token.username && req.token.email)
     {
-      console.log("oauth access");
-      const user=db.collection("users").findOne({email:req.token.email})
-      if(user===null)
+      const {details}=db.collection("users").findOne({email:req.token.email})
+      if(details===null|| !details)
       {
-        console.log("not found")
-        return res.status(400).json({
-          details:false
+        return res.status(200).json({
+          detailsFound:false
         })
       }
       return res.status(200).json(
         {
-          details:true
+          detailsFound:true,
+          details
         }
       )
     }
@@ -302,7 +302,43 @@ app.get("/check-details", verifyCookies, async (req, res) => {
 
 
 
-
+app.post("/update-details", verifyCookies, async (req,res)=>{
+const {payload}=req.body;
+try{
+if (req.token.username)
+{
+  //local
+  const username=req.token.username;
+  db.collection("users").updateOne({username},{$set:{details:payload}})
+}
+else if(req.token.email)
+{
+  const email=req.token.email;
+  db.collection("users").updateOne({email},{$set:{details:payload}})
+}
+else
+{
+  return res.status(400).json(
+    {
+      statusMessage:"failed to update changes to user bio"
+    }
+  )
+}
+return res.status(200).json(
+  {
+    statusMessage:"changes updated successfully"
+  })
+}
+catch(er)
+{
+  console.log("error in try catch block in update-details");
+  return res.status(500).json(
+    {
+      statusMessage:"internal server error"
+    }
+  )
+}
+});
 
 
 

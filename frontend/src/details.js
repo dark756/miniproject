@@ -1,3 +1,4 @@
+import axios, { AxiosError } from "axios";
 import React, { useState, useEffect } from "react";
 
 
@@ -108,7 +109,7 @@ const emptyWork = { company: "", start_date:null, end_date: null, role: null, re
 
 const [pop, setPop]=useState(false);
 const [show, setShow]=useState(false);
-
+const [failed, setFailed]=useState(false);
 useEffect(() => {
   const requiredLangs = new Set();
   tech.forEach(stack => {
@@ -134,7 +135,29 @@ useEffect(() => {
 }, [tech]);
 
 
-
+useEffect(()=>{
+    //call get deets and prefill form if present might need api changes
+    const get_details = async()=>
+    {
+        const res=await axios.get("http://localhost:5000/check-details",
+            {validateStatus: () => true, withCredentials: true})
+        console.log(res)
+        if (res.status===200 && res.data.detailsFound===true)
+        {
+            //setter
+            const details=res.data.details;
+            setJobrole(details.jobrole);
+            setTech(details.tech);
+            setProgLangs(details.progLangs);
+            setEd(details.education);
+            setWork(details.workex);
+            setCerts(details.certifications);
+            setRemarks(details.other_remarks);
+            setDob(details.dob||"");
+        }
+    }
+    get_details();
+},[])
 useEffect(() => {//removes tech stacks if langs are removed
   setTech(prevTech => {
     const filtered = prevTech.filter(stack => {
@@ -200,7 +223,8 @@ const removeWork = idx => {
     setPop(true);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async() => {
+    setFailed(false);
   setPop(false);
  const payload=
     {
@@ -210,10 +234,21 @@ const removeWork = idx => {
         education,
         workex,
         certifications,
-        other_remarks
+        other_remarks,
+        dob
     }
     console.log(payload)//USE PAYLOAD TO UPLOAD TO API AND ALSO DO GET API IN USEEFFECT
-  setShow(true);
+    const res=await axios.post("http://localhost:5000/update-details",{payload},{validateStatus: () => true,
+                withCredentials: true});
+    if(res.status===200)
+    {
+        setShow(true);//add redirect here after 1s delay
+    }
+    else
+    {
+        setFailed(true);
+    }
+
 };
 
   // Main UI
@@ -742,6 +777,9 @@ const removeWork = idx => {
       {show &&(
           <span style={{ color: "green" }}><br/><br/>details updated successfully</span>
       )}
+      {failed &&(
+          <span style={{ color: "red" }}><br/><br/>details could not be updated<br/>please try again...</span>
+      )}
     </form>
     {pop && (
   <div style={{
@@ -763,6 +801,7 @@ const removeWork = idx => {
           onClick={
             ()=>{
                 setShow(false);
+                setFailed(false);
                 setPop(false);
             }
           }
