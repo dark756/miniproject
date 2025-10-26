@@ -1,0 +1,47 @@
+[
+    {
+        "question": "Which of the following keywords is used to modify a variable in an enclosing (but not global) scope in Python?",
+        "type": "mcq",
+        "option_a": "(a) global",
+        "option_b": "(b) static",
+        "option_c": "(c) nonlocal",
+        "option_d": "(d) extern",
+        "correct_answer": "(c) nonlocal"
+    },
+    {
+        "question": "In Python, which of the following symbols is used to apply a decorator to a function or class?",
+        "type": "mcq",
+        "option_a": "(a) #",
+        "option_b": "(b) @",
+        "option_c": "(c) $",
+        "option_d": "(d) &",
+        "correct_answer": "(b) @"
+    },
+    {
+        "question": "What is the primary advantage of using a generator in Python?",
+        "type": "mcq",
+        "option_a": "(a) It always returns a list of all possible values at once, improving performance.",
+        "option_b": "(b) It allows for iterative processing of data, consuming less memory by yielding values one by one.",
+        "option_c": "(c) It enables direct manipulation of bytecode, speeding up execution.",
+        "option_d": "(d) It provides a way to define asynchronous functions without using async/await.",
+        "correct_answer": "(b) It allows for iterative processing of data, consuming less memory by yielding values one by one."
+    },
+    {
+        "question": "Which of the following built-in Python data structures is best suited for storing unique items and providing very fast average-case lookup times for membership checking?",
+        "type": "mcq",
+        "option_a": "(a) List",
+        "option_b": "(b) Tuple",
+        "option_c": "(c) Dictionary",
+        "option_d": "(d) Set",
+        "correct_answer": "(d) Set"
+    },
+    {
+        "question": "In Python's multiple inheritance, what does MRO stand for?",
+        "type": "mcq",
+        "option_a": "(a) Method Runtime Optimization",
+        "option_b": "(b) Multiple Role Object",
+        "option_c": "(c) Method Resolution Order",
+        "option_d": "(d) Main Resource Override",
+        "correct_answer": "(c) Method Resolution Order"
+    }
+]

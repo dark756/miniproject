@@ -37,6 +37,7 @@ const jobroles = [
 
 const stackToLanguages = {
   "MERN Stack": ["JavaScript", "Node.js", "HTML", "CSS"],
+  "fastAPI + next.js":["Python", "Javascript"],
   "Next.js": ["JavaScript", "TypeScript"],
   "Angular": ["TypeScript", "HTML", "CSS"],
   "Spring Boot": ["Java", "Kotlin"],
