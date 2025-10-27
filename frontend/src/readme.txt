@@ -1,3 +1,7 @@
+
+make only one stack takable
+
+
 get more details
 
 crud from admin view?
