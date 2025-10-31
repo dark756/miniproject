@@ -7,7 +7,7 @@ import dash from "./routes/dash.js"
 import admin from "./routes/admin_routes.js"
 // import interview from "./routes/interview.js"
 
-dotenv.config();
+dotenv.config({ path: ".env.local" });
 const app = express();
 const PORT = 5000;
 app.use(express.json());

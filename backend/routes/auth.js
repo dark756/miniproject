@@ -3,7 +3,7 @@ import { VerifyCookies } from "./Verify_cookies.js";
 import { MongoClient } from "mongodb";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ path: ".env.local" });
 
 const app = express.Router();
 

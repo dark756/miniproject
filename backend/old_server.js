@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 
 //              nodemon server.js 
 
-dotenv.config();
+dotenv.config({ path: ".env.local" });
 const app = express();
 const PORT = 5000;
 app.use(express.json());
