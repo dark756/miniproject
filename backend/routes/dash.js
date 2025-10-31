@@ -105,14 +105,20 @@ export async function difficulty(user) {
 
 app.post("/update-details", VerifyCookies, async (req, res) => {
     const { payload } = req.body;
+    let user={
+      details:payload
+    }
     try {
       if (req.token.username) {
         //local
         const username = req.token.username;
+        user.username=username;
         db.collection("users").updateOne({ username }, { $set: { details: payload } })
+        
       }
       else if (req.token.email) {
         const email = req.token.email;
+        user.email=email;
         db.collection("users").updateOne({ email }, { $set: { details: payload } })
       }
       else {
@@ -132,7 +138,7 @@ app.post("/update-details", VerifyCookies, async (req, res) => {
         })
     }
     catch (er) {
-      console.log("error in try catch block in update-details");
+      console.log("error in try catch block in update-details", er);
       return res.status(500).json(
         {
           statusMessage: "internal server error"
