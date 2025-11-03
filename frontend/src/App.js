@@ -8,6 +8,8 @@ import Dash from "./Dash";
 import Admin from "./Admin";
 import AddUser from "./AddUser";
 import Details from "./details";
+import FaceId from "./FaceId";
+import Interview from "./Interview";
 
 // Page components (placeholder for now)
 
@@ -47,6 +49,8 @@ export default function App() {
         <Route path="/details" element={<RequireAuth allowedRoles={['user']}><Details /></RequireAuth>} />
         <Route path="/admin" element={<RequireAuth allowedRoles={['admin']}><Admin /></RequireAuth>} />
         <Route path="/add-user" element={<AddUser/>}/>
+        <Route path="/face-id" element={<RequireAuth allowedRoles={['user']}><FaceId /></RequireAuth>} />
+        <Route path="/interview/*" element={<RequireAuth allowedRoles={['user']}><Interview /></RequireAuth>} />
         {/* Catch-all for 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>

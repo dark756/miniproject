@@ -13,7 +13,7 @@ export default function Dash({ name }) {
       const res=await axios.get("http://localhost:5000/check-details", { withCredentials: true, validateStatus: () => true })
       if (res.status===200)
       {
-        setDetails(res.data.details);
+        setDetails(res.data.detailsFound);
       }
       else
       {
@@ -28,6 +28,13 @@ export default function Dash({ name }) {
       <p>Welcome {name}</p>
       {details ? (<p>you have details...</p>):(<p>you do not have details...</p>)}
       <button onClick={()=>navigate("/details")}>click me</button>
+      <p></p>
+      <button 
+      disabled={!details}
+      style={{
+    backgroundColor: !details ? 'grey' : 'blue',
+    color: !details ? 'darkgray' : 'white'}}
+      onClick={()=>navigate("/face-id")}>start interview</button>
     </div>
   );
 }

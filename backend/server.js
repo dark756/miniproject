@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import auth from "./routes/auth.js"
 import dash from "./routes/dash.js"
 import admin from "./routes/admin_routes.js"
-// import interview from "./routes/interview.js"
+import interview from "./routes/interview.js"
 
 dotenv.config({ path: ".env.local" });
 const app = express();
@@ -16,7 +16,7 @@ app.use(cookieParser());
 app.use("/",auth);
 app.use("/",dash);
 app.use("/",admin);
-// app.use("/",interview)
+app.use("/",interview)
 
 
 
