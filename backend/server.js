@@ -13,14 +13,10 @@ const PORT = 5000;
 app.use(express.json());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(cookieParser());
-app.use("/",auth);
-app.use("/",dash);
-app.use("/",admin);
-app.use("/",interview)
-
-
-
-
+app.use("/", auth);
+app.use("/", dash);
+app.use("/", admin);
+app.use("/", interview)
 
 
 app.listen(PORT, () => {

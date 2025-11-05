@@ -1,9 +1,6 @@
- import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
- 
- 
- 
- export function VerifyCookies(req, res, next) {
+export function VerifyCookies(req, res, next) {
   const token = req.cookies?.access_token;
   if (!token) {
     console.log("No token found from cookies")

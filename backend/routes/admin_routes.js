@@ -36,11 +36,11 @@ app.post("/delete-user", VerifyCookies, async (req, res) => {
   else if (email) {
     db.collection("users").deleteOne({ email })
   }
-  else{
-        return res.status(400).json({ statusMessage: "failed to find user" });
+  else {
+    return res.status(400).json({ statusMessage: "failed to find user" });
   }
   return res.status(200).json({
-    statusMessage:"user deleted successfully"
+    statusMessage: "user deleted successfully"
   })
 })
 

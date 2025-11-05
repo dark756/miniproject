@@ -17,8 +17,6 @@ app.post("/login", async (req, res) => {
   const query = { username, password }
   try {
     const user = await db.collection("users").find(query).toArray();
-    //console.log(user)
-
     if (user.length !== 1) {
       return res.status(400).json({ statusMessage: "Username or password incorrect", status: "failure" });
     }
@@ -30,7 +28,6 @@ app.post("/login", async (req, res) => {
       secure: false,
       sameSite: "lax",
       path: "/",
-      //maxAge: 1000 * 60 * 30 
     });
     res.json({ role: user[0].role, status: "success", statusMessage: "login successful and cookie is set" });
   } catch (err) {
@@ -39,20 +36,13 @@ app.post("/login", async (req, res) => {
   }
 });
 
-
-
-
 app.post("/glogin", async (req, res) => {
   const info = req.body;
-  //console.log(info);
   const { name, email } = info;
   try {
     const user = await db.collection("users").find({ email }).toArray();
-    //console.log(user)
-
     if (user.length !== 1) {
       if (user.length === 0) {
-        //add user
         const body = {
           name, email,
           role: 'user',
@@ -68,7 +58,6 @@ app.post("/glogin", async (req, res) => {
           secure: false,
           sameSite: "lax",
           path: "/",
-          //maxAge: 1000 * 60 * 30 
         });
         res.json({ role: "user", status: "success", statusMessage: "login successful and cookie is set" });
 
@@ -76,14 +65,13 @@ app.post("/glogin", async (req, res) => {
       return res.status(400).json({ statusMessage: "invalid email address", status: "failure" });//add user here
     }
     const token = jwt.sign({ email, username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: 3600 });
-    const refresh_token = jwt.sign({email, username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: "30d" });
+    const refresh_token = jwt.sign({ email, username: user[0].username, name: user[0].name, role: user[0].role }, process.env.JWT_SECRET, { expiresIn: "30d" });
     db.collection("users").updateOne({ email }, { $set: { refresh_token } });
     res.cookie("access_token", token, {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
       path: "/",
-      //maxAge: 1000 * 60 * 30 
     });
     res.json({ role: user[0].role, status: "success", statusMessage: "login successful and cookie is set" });
   } catch (err) {
@@ -95,7 +83,6 @@ app.post("/glogin", async (req, res) => {
 
 
 app.get("/token", VerifyCookies, (req, res) => {
-  // console.log(req.token);
   res.json({ name: req.token.name, role: req.token.role, status: "success", statusMessage: "jwt verfified" });
 });
 
@@ -116,7 +103,6 @@ app.get("/refresh", async (req, res) => {
           secure: false,
           sameSite: "lax",
           path: "/",
-          //maxAge: 1000 * 60 * 30 
         });
         return res.status(200).json({ name: refresh_data.name, role: refresh_data.role, status: "success", statusMessage: "refresh successful and cookie is set" });
       }
@@ -167,7 +153,7 @@ app.get("/check-username", async (req, res) => {
 
 
 app.post("/add-user", async (req, res) => {
-  const { username, pass, name, email} = req.body;
+  const { username, pass, name, email } = req.body;
 
   try {
     const existingUser = await db.collection("users").findOne({ email });
@@ -186,22 +172,21 @@ app.post("/add-user", async (req, res) => {
     }
 
     const body = {
-      name, email, 
+      name, email,
       role: 'user',
       password: pass,
       username
     };
     db.collection("users").insertOne(body);
 
-    const token = jwt.sign({ email,username, name, role: "user" }, process.env.JWT_SECRET, { expiresIn: 3600 });
+    const token = jwt.sign({ email, username, name, role: "user" }, process.env.JWT_SECRET, { expiresIn: 3600 });
     const refresh_token = jwt.sign({ email, username, name, role: "user" }, process.env.JWT_SECRET, { expiresIn: "30d" });
     db.collection("users").updateOne({ username }, { $set: { refresh_token } });
     res.cookie("access_token", token, {
-      httpOnly: true, 
+      httpOnly: true,
       secure: false,
       sameSite: "lax",
       path: "/",
-      // maxAge: 0
     });
     return res.status(200).json({ username, status: "success", statusMessage: "added user to db" });
 
@@ -211,7 +196,5 @@ app.post("/add-user", async (req, res) => {
     return res.status(400).json({ statusMessage: `unknown error: ${er}`, status: "failure" });
   }
 });
-
-
 
 export default app;

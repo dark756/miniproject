@@ -14,34 +14,28 @@ MongoClient.connect(process.env.MONGO_URI).then(client => { db = client.db(); })
   .catch(err => console.error(err));
 
 app.get("/check-hist", VerifyCookies, async (req, res) => {
-  const {username, email}=req.token;
+  const { username, email } = req.token;
   let iids;
-  if(username)
-  {
-    const re=await db.collection("users").findOne({username})??null
-    // console.log(re.iids)
-    iids=re.iids??null;
+  if (username) {
+    const re = await db.collection("users").findOne({ username }) ?? null
+    iids = re.iids ?? null;
   }
-  else if(email)
-  {
-    const re=await db.collection("users").findOne({email})??null
-    iids=re.iids??null;
+  else if (email) {
+    const re = await db.collection("users").findOne({ email }) ?? null
+    iids = re.iids ?? null;
   }
-  if(!iids)
-  {
-    iids=[];
+  if (!iids) {
+    iids = [];
   }
-  return res.status(200).json({iids})
+  return res.status(200).json({ iids })
 })
 
 
 
 
 app.get("/check-details", VerifyCookies, async (req, res) => {
-  // console.log(`"${req.token.username}"`);
   if (req.token.username) {
     const { details } = await db.collection("users").findOne({ username: req.token.username })
-    // console.log(details?details:"hi");
     if (details === null || !details) {
       return res.status(200).json({
         detailsFound: false
@@ -54,7 +48,7 @@ app.get("/check-details", VerifyCookies, async (req, res) => {
       }
     )
   }
-  else if ( req.token.email) {
+  else if (req.token.email) {
     const { details } = db.collection("users").findOne({ email: req.token.email })
     if (details === null || !details) {
       return res.status(200).json({
@@ -75,11 +69,9 @@ app.get("/check-details", VerifyCookies, async (req, res) => {
 });
 
 export async function difficulty(user) {
-  // console.log(user);
   const education = user.details.education.length !== 0 ? user.details.education : null;
   const workex = user.details.workex.length !== 0 ? user.details.workex : null
   const certs = user.details.certifications.length !== 0 ? user.details.certifications : null
-  // console.log((user.details))
   const diff_query = `generate a number from 0 to 10 with upto 2 floating points which signifies the difficulty of interview questions a candidate should face based on the following information:
        education: ${education.map(e => `${e.degree} from ${e.institute} with ${e.cgpa} CGPA`).join(";\t")};
       ${certs ? `certifications: ${certs.map(e => `${e.name} from ${e.provider}`).join(";\t")}` : ""};
@@ -95,7 +87,7 @@ export async function difficulty(user) {
         systemInstruction: diff_config,
       }
     });
-    console.log(result.text);//add setter to mongo
+    console.log(result.text);
     const diff = Number(result.text);
     try {
       if (user.username) {
@@ -124,10 +116,9 @@ app.post("/update-details", VerifyCookies, async (req, res) => {
   let user = {
     details: payload
   }
-  
+
   try {
     if (req.token.username) {
-      //local
       const username = req.token.username;
       user.username = username;
       db.collection("users").updateOne({ username }, { $set: { details: payload } })
@@ -144,9 +135,8 @@ app.post("/update-details", VerifyCookies, async (req, res) => {
         }
       )
     }
-    //block for diff
     difficulty(user);
-    //
+    //fire and forget function
 
     return res.status(200).json(
       {
@@ -162,8 +152,6 @@ app.post("/update-details", VerifyCookies, async (req, res) => {
     )
   }
 });
-
-
 
 
 export default app; 
