@@ -10,6 +10,7 @@ import AddUser from "./AddUser";
 import Details from "./details";
 import FaceId from "./FaceId";
 import Interview from "./Interview";
+import Hist, { HistID } from "./Hist"
 
 // Page components (placeholder for now)
 
@@ -17,14 +18,12 @@ import Interview from "./Interview";
 function NotFound() {
   return <h1>404 - Page Not Found</h1>;
 }
-function Home()
-{
-  const nav=useNavigate();
-  useEffect(()=>
-  {
+function Home() {
+  const nav = useNavigate();
+  useEffect(() => {
     nav("/dashboard")
-  },[])
-  
+  }, [])
+
 }
 export default function App() {
   const navigate = useNavigate();
@@ -36,7 +35,7 @@ export default function App() {
     <div>
       {/* Navigation */}
       <nav style={{ display: "flex", gap: "1rem", padding: "1rem", background: "#eee" }}>
-        
+
         <button onClick={logout}>logout</button>
 
       </nav>
@@ -48,9 +47,11 @@ export default function App() {
         <Route path="/dashboard/*" element={<RequireAuth allowedRoles={['user']}><Dash /></RequireAuth>} />
         <Route path="/details" element={<RequireAuth allowedRoles={['user']}><Details /></RequireAuth>} />
         <Route path="/admin" element={<RequireAuth allowedRoles={['admin']}><Admin /></RequireAuth>} />
-        <Route path="/add-user" element={<AddUser/>}/>
+        <Route path="/add-user" element={<AddUser />} />
         <Route path="/face-id" element={<RequireAuth allowedRoles={['user']}><FaceId /></RequireAuth>} />
         <Route path="/interview/*" element={<RequireAuth allowedRoles={['user']}><Interview /></RequireAuth>} />
+        <Route path="/history/*" element={<RequireAuth allowedRoles={['user']}><Hist /></RequireAuth>} />
+        <Route path="/history/:id" element={<RequireAuth allowedRoles={['user']}><HistID /></RequireAuth>} />
         {/* Catch-all for 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -24,6 +24,25 @@ app.get("/get-users", VerifyCookies, async (req, res) => {
   }
 
 })
+app.post("/delete-user", VerifyCookies, async (req, res) => {
+  if (req.token.role !== "admin") {
+    return res.status(400).json({ statusMessage: "No access for user", status: "failure" });
+  }
+  const user = req.body.user;
+  const { username, email } = user;
+  if (username) {
+    db.collection("users").deleteOne({ username })
+  }
+  else if (email) {
+    db.collection("users").deleteOne({ email })
+  }
+  else{
+        return res.status(400).json({ statusMessage: "failed to find user" });
+  }
+  return res.status(200).json({
+    statusMessage:"user deleted successfully"
+  })
+})
 
 
 export default app;

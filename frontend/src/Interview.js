@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 
 export default function Interview() {
-    const [details, setDetails] = useState({ tech: [] });
+    const [details, setDetails] = useState({ tech: [] , progLangs:[]});
     const nav = useNavigate();
     useEffect(() => {
         const checkStatus = async () => {
@@ -35,12 +35,13 @@ export default function Interview() {
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false)
     const [loaded, setLoaded]=useState(false);
-
-    async function generate(e) {
+    const [score, setScore]=useState(Number)
+    const [breakdown, setBreakdown]=useState([])
+    async function generate(id) {
         setEr("")
-        console.log(e)
+        console.log(id)
         setGenerating(true);//spiny
-        const res = await axios.get("http://localhost:5000/generate", { withCredentials: true, validateStatus: () => true })
+        const res = await axios.get(`http://localhost:5000/generate/${id}`, { withCredentials: true, validateStatus: () => true })
         console.log(res.data)
         if (res.status !== 200) {
             setGenerating(false);
@@ -73,7 +74,7 @@ export default function Interview() {
     }
     const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    const loadscore = async (t = 15) => {
+    const loadscore = async (t = 7) => {
         await delay(t * 1000); 
 
         const res = await axios.get(`http://localhost:5000/score/${iid}`, { withCredentials: true, validateStatus: () => true });
@@ -82,7 +83,8 @@ export default function Interview() {
             loadscore(7); 
         } else if (res.status === 200) {
             setLoaded(true);
-            console.log(res.data.score);
+            setScore(res.data.score);//breakdown
+            setBreakdown(res.data.answers)
         } else {
             console.log('er');
         }
@@ -90,7 +92,9 @@ export default function Interview() {
 
     return (
         <div>
-            {!gen && details.tech.map((e, idx) => <button disabled={generating} key={idx} onClick={() => generate(e)}>{e}</button>)}
+            {!gen && details.tech.map((e, idx) => <button disabled={generating} key={idx} onClick={() => generate(idx)}>{e}</button>)}
+            <p></p>
+            {!gen && details.progLangs.map((e, idx) => <button disabled={generating} key={idx} onClick={() => generate(idx+details.tech.length)}>{e}</button>)}
             {er !== "" && (<p>{er}</p>)}
             {gen && !submitted && (
                 <>
@@ -140,7 +144,20 @@ export default function Interview() {
                 </>
             )}
             {submitted && !loaded&&(<p>loading...</p>)}
-            {loaded&& (<p>Score: {score}</p>)}
+            {loaded&& (<><p>Score: {score}<br/></p>
+            {breakdown && breakdown.map((e,i)=>{
+                return (<div key={i}>
+                    <p>Q{i+1}. {e.question}<br/>
+                    Your answer: {e.answer}<br/>
+                    {e.type==="mcq" &&(<span>correct answer: {e.correct_answer}<br/></span>)}
+                    marks: {e.marks}
+                    </p></div>
+                )
+            })}
+            
+            
+            
+            </>)}
 
         </div>
 

@@ -13,12 +13,33 @@ let db;
 MongoClient.connect(process.env.MONGO_URI).then(client => { db = client.db(); })
   .catch(err => console.error(err));
 
+app.get("/check-hist", VerifyCookies, async (req, res) => {
+  const {username, email}=req.token;
+  let iids;
+  if(username)
+  {
+    const re=await db.collection("users").findOne({username})??null
+    // console.log(re.iids)
+    iids=re.iids??null;
+  }
+  else if(email)
+  {
+    const re=await db.collection("users").findOne({email})??null
+    iids=re.iids??null;
+  }
+  if(!iids)
+  {
+    iids=[];
+  }
+  return res.status(200).json({iids})
+})
+
+
 
 
 app.get("/check-details", VerifyCookies, async (req, res) => {
   // console.log(`"${req.token.username}"`);
   if (req.token.username) {
-    console.log("we have local auth");
     const { details } = await db.collection("users").findOne({ username: req.token.username })
     // console.log(details?details:"hi");
     if (details === null || !details) {
@@ -33,7 +54,7 @@ app.get("/check-details", VerifyCookies, async (req, res) => {
       }
     )
   }
-  if (!req.token.username && req.token.email) {
+  else if ( req.token.email) {
     const { details } = db.collection("users").findOne({ email: req.token.email })
     if (details === null || !details) {
       return res.status(200).json({
@@ -76,78 +97,73 @@ export async function difficulty(user) {
     });
     console.log(result.text);//add setter to mongo
     const diff = Number(result.text);
-    try{
-    if(user.username)
-    {
-    db.collection("users").updateOne({username:user.username},{$set:{"details.diff":diff}})
+    try {
+      if (user.username) {
+        db.collection("users").updateOne({ username: user.username }, { $set: { "details.diff": diff } })
+      }
+      else if (user.email) {
+        db.collection("users").updateOne({ email: user.email }, { $set: { "details.diff": diff } })
+      }
+      else {
+        console.log("couldnt save diff to mongo in difficulty() backend/routes/dash.js ")
+      }
     }
-    else if(user.email)
-    {
-    db.collection("users").updateOne({email:user.email},{$set:{"details.diff":diff}})
+    catch (er) {
+      console.log("mongo error in difficulty function, backend/routes/dash.js")
     }
-    else
-    {
-      console.log("couldnt save diff to mongo in difficulty() backend/routes/dash.js ")
-    }
-  }
-  catch(er)
-  {
-    console.log("mongo error in difficulty function, backend/routes/dash.js")
-  }
     return diff;
   }
-  catch(er)
-  {
+  catch (er) {
     console.log("err in diff setting must be done again")
     return null;
   }
 }
 
 app.post("/update-details", VerifyCookies, async (req, res) => {
-    const { payload } = req.body;
-    let user={
-      details:payload
+  const { payload } = req.body;
+  let user = {
+    details: payload
+  }
+  
+  try {
+    if (req.token.username) {
+      //local
+      const username = req.token.username;
+      user.username = username;
+      db.collection("users").updateOne({ username }, { $set: { details: payload } })
     }
-    try {
-      if (req.token.username) {
-        //local
-        const username = req.token.username;
-        user.username=username;
-        db.collection("users").updateOne({ username }, { $set: { details: payload } })
-        
-      }
-      else if (req.token.email) {
-        const email = req.token.email;
-        user.email=email;
-        db.collection("users").updateOne({ email }, { $set: { details: payload } })
-      }
-      else {
-        return res.status(400).json(
-          {
-            statusMessage: "failed to update changes to user bio"
-          }
-        )
-      }
-      //block for diff
-      difficulty(user);
-      //
-
-      return res.status(200).json(
-        {
-          statusMessage: "changes updated successfully"
-        })
+    else if (req.token.email) {
+      const email = req.token.email;
+      user.email = email;
+      db.collection("users").updateOne({ email }, { $set: { details: payload } })
     }
-    catch (er) {
-      console.log("error in try catch block in update-details", er);
-      return res.status(500).json(
+    else {
+      return res.status(400).json(
         {
-          statusMessage: "internal server error"
+          statusMessage: "failed to update changes to user bio"
         }
       )
     }
-  });
+    //block for diff
+    difficulty(user);
+    //
+
+    return res.status(200).json(
+      {
+        statusMessage: "changes updated successfully"
+      })
+  }
+  catch (er) {
+    console.log("error in try catch block in update-details", er);
+    return res.status(500).json(
+      {
+        statusMessage: "internal server error"
+      }
+    )
+  }
+});
 
 
 
 
-  export default app; 
+export default app; 

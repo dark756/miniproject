@@ -10,7 +10,33 @@ export default function Admin({ name }) {
   const [search, setSearch] = useState("");
   const [filterJobRole, setFilterJobRole] = useState("");
   const [sortBy, setSortBy] = useState("");
+  const [delUser, setDelUser]=useState({})
+  const [pop, setPop]=useState(false)
+  const initDel=(user)=>{
+    setDelUser(user)
+    setPop(true);
+  }
+const deleteUser = async () => {
+    // if (!window.confirm(`Delete user ${user.name} (${user.username})?`)) return;
+    const user=delUser;
+    setPop(false);
+    try {
+      const res = await axios.post(`http://localhost:5000/delete-user`,{user},{
+        withCredentials: true,
+        validateStatus: () => true,
+      });
 
+      if (res.status === 200) {
+        setData(prevData => prevData.filter(u => u.username !== user.username));
+        alert("User deleted successfully");
+      } else {
+        alert("Failed to delete user");
+      }
+    } catch (err) {
+      alert("Error deleting user");
+      console.error(err);
+    }
+  };
   useEffect(() => {
     axios
       .get("http://localhost:5000/get-users", {
@@ -81,7 +107,7 @@ const Row = ({ index, style }) => {
         {user.email && <small>Email: {user.email}</small>}
         {user.jobrole && <small>Job Role: {user.jobrole}</small>}
         <button
-          onClick={() => console.log(1)}////////////////////////////////////////////make del function
+          onClick={() => initDel(user)}////////////////////////////////////////////make del function
           style={{
             marginLeft: "auto",
             backgroundColor: "transparent",
@@ -168,6 +194,37 @@ const Row = ({ index, style }) => {
       ) : (
         <p>No users found.</p>
       )}
+      
+{pop && (
+  <div style={{
+    position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
+    background: "rgba(0,0,0,0.34)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000
+  }}>
+    <div style={{
+      background: "white", borderRadius: "8px", padding: "30px 26px", boxShadow: "0 2px 18px #6667", width: "320px",
+      textAlign: "center", fontSize: "17px"
+    }}>
+      <strong>Are you sure you want to delete {delUser.username??delUser.email}</strong>
+      <div style={{ marginTop: 28, display: "flex", gap: 14, justifyContent: "center" }}>
+        <button
+          onClick={deleteUser}
+          style={{ padding: "8px 22px", background: "#19d260ff", color: "#fff", border: "none", borderRadius: 4, fontWeight: 700, cursor: "pointer" }}>
+          Confirm
+        </button>
+        <button
+          onClick={
+            ()=>{
+                setDelUser(null);
+                setPop(false);
+            }
+          }
+          style={{ padding: "8px 22px", background: "#ee0d0dff", color: "#fff", border: "none", borderRadius: 4, fontWeight: 700, cursor: "pointer" }}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }

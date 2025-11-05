@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function Dash({ name }) {
@@ -34,7 +34,10 @@ export default function Dash({ name }) {
       style={{
     backgroundColor: !details ? 'grey' : 'blue',
     color: !details ? 'darkgray' : 'white'}}
-      onClick={()=>navigate("/face-id")}>start interview</button>
+      onClick={()=>navigate("/interview")}>Start Interview</button>
+      <p><br/></p>
+            <button onClick={()=>navigate("/history")}>hist</button>
+
     </div>
   );
 }
