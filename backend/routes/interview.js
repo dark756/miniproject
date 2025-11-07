@@ -1,5 +1,5 @@
 ﻿import express from "express";
-import { MongoClient, ObjectId } from "mongodb";
+import { MongoClient, ObjectId, ServerApiVersion } from "mongodb";
 import { GoogleGenAI } from "@google/genai";
 import { difficulty } from "./dash.js"
 import { VerifyCookies } from "./Verify_cookies.js";
@@ -14,10 +14,19 @@ const app = express.Router();
 let db;
 
 async function connectDB() {
-    if (db) return db; // return existing DB if already connected
-    const client = await MongoClient.connect(process.env.MONGO_URI);
-    db = client.db();
-    return db;
+  if (db) return db;
+  
+  const client = new MongoClient(process.env.MONGO_URI, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    }
+  });
+  
+  await client.connect(); // Explicit connect call
+  db = client.db();
+  return db;
 }
 
 app.get("/generate/:id", VerifyCookies, async (req, res) => {

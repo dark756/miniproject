@@ -1,7 +1,7 @@
 import express from "express";
 const app = express.Router();
 import { VerifyCookies } from "./Verify_cookies.js";
-import { MongoClient } from "mongodb";
+import { MongoClient,ServerApiVersion } from "mongodb";
 import { GoogleGenAI } from "@google/genai";
 
 
@@ -16,12 +16,20 @@ dotenv.config({ path: ".env.local" });
 let db;
 
 async function connectDB() {
-  if (db) return db; // return existing DB if already connected
-  const client = await MongoClient.connect(process.env.MONGO_URI);
+  if (db) return db;
+  
+  const client = new MongoClient(process.env.MONGO_URI, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    }
+  });
+  
+  await client.connect(); // Explicit connect call
   db = client.db();
   return db;
 }
-
 app.get("/check-hist", VerifyCookies, async (req, res) => {
   const { username, email } = req.token;
   let iids;

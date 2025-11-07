@@ -1,6 +1,6 @@
 import express from "express";
 import { VerifyCookies } from "./Verify_cookies.js";
-import { MongoClient } from "mongodb";
+import { MongoClient, ServerApiVersion } from "mongodb";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
@@ -14,8 +14,17 @@ const app = express.Router();
 let db;
 
 async function connectDB() {
-  if (db) return db; // return existing DB if already connected
-  const client = await MongoClient.connect(process.env.MONGO_URI);
+  if (db) return db;
+  
+  const client = new MongoClient(process.env.MONGO_URI, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    }
+  });
+  
+  await client.connect(); // Explicit connect call
   db = client.db();
   return db;
 }
