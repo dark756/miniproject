@@ -5,16 +5,24 @@ import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 const app = express.Router();
 
+// let db;
+// MongoClient.connect(process.env.MONGO_URI).then(client => { db = client.db(); })
+//   .catch(err => console.error(err));
 let db;
-MongoClient.connect(process.env.MONGO_URI).then(client => { db = client.db(); })
-  .catch(err => console.error(err));
 
+async function connectDB() {
+  if (db) return db; // return existing DB if already connected
+  const client = await MongoClient.connect(process.env.MONGO_URI);
+  db = client.db();
+  return db;
+}
 
 app.get("/get-users", VerifyCookies, async (req, res) => {
   if (req.token.role !== "admin") {
     return res.status(400).json({ statusMessage: "No access for user", status: "failure" });
   }
   try {
+    const db = await connectDB();
     const users = await db.collection("users").find({ role: "user" }).toArray();
     res.json({ users, status: "success", statusMessage: "returned list of users" });
   }
@@ -30,6 +38,8 @@ app.post("/delete-user", VerifyCookies, async (req, res) => {
   }
   const user = req.body.user;
   const { username, email } = user;
+  const db = await connectDB();
+
   if (username) {
     db.collection("users").deleteOne({ username })
   }

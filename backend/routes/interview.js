@@ -8,12 +8,20 @@ dotenv.config({ path: ".env.local" });
 const app = express.Router();
 
 
+// let db;
+// MongoClient.connect(process.env.MONGO_URI).then(client => { db = client.db(); })
+//     .catch(err => console.error(err));
 let db;
-MongoClient.connect(process.env.MONGO_URI).then(client => { db = client.db(); })
-    .catch(err => console.error(err));
 
+async function connectDB() {
+    if (db) return db; // return existing DB if already connected
+    const client = await MongoClient.connect(process.env.MONGO_URI);
+    db = client.db();
+    return db;
+}
 
 app.get("/generate/:id", VerifyCookies, async (req, res) => {
+    const db = await connectDB();
     const id = Number(req.params.id) || 0;
     const no_questions = Number(process.env.NO_QUESTIONS) || 5;
     const ratio = Number(process.env.RATIO) || 0.5;
@@ -98,6 +106,7 @@ app.get("/generate/:id", VerifyCookies, async (req, res) => {
 
 export async function re_eval(questions, answers, iid, t = 0) {
     try {
+        const db = await connectDB();
         const subQuestionsWithIndex = questions
             .map((q, i) => ({ question: q, index: i }))
             .filter(({ question }) => question.type === "subjective");
@@ -183,6 +192,7 @@ app.post("/submit", VerifyCookies, async (req, res) => {
     const answers = req.body.answers
     console.log(iid)
     try {
+        const db = await connectDB();
         const { email, username, questions } = await db.collection("interviews").findOneAndUpdate({ _id: new ObjectId(iid) }, { $set: { answers, submissionDate: new Date(), evalStatus: "submitted" } });
         console.log(email, username)
         if (username) {
@@ -220,6 +230,7 @@ app.post("/submit", VerifyCookies, async (req, res) => {
 
 app.get("/score/:id", VerifyCookies, async (req, res) => {
     try {
+        const db = await connectDB();
         const id = req.params.id;
         const re = await db.collection("interviews").findOne({ _id: new ObjectId(id) }) ?? null
         if (re === null) {

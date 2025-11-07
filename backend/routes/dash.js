@@ -9,13 +9,23 @@ import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
 
+// let db;
+// MongoClient.connect(process.env.MONGO_URI).then(client => { db = client.db(); })
+//   .catch(err => console.error(err));
+
 let db;
-MongoClient.connect(process.env.MONGO_URI).then(client => { db = client.db(); })
-  .catch(err => console.error(err));
+
+async function connectDB() {
+  if (db) return db; // return existing DB if already connected
+  const client = await MongoClient.connect(process.env.MONGO_URI);
+  db = client.db();
+  return db;
+}
 
 app.get("/check-hist", VerifyCookies, async (req, res) => {
   const { username, email } = req.token;
   let iids;
+  const db = await connectDB();
   if (username) {
     const re = await db.collection("users").findOne({ username }) ?? null
     iids = re.iids ?? null;
@@ -34,6 +44,7 @@ app.get("/check-hist", VerifyCookies, async (req, res) => {
 
 
 app.get("/check-details", VerifyCookies, async (req, res) => {
+  const db = await connectDB();
   if (req.token.username) {
     const { details } = await db.collection("users").findOne({ username: req.token.username })
     if (details === null || !details) {
@@ -90,6 +101,7 @@ export async function difficulty(user) {
     console.log(result.text);
     const diff = Number(result.text);
     try {
+      const db = await connectDB();
       if (user.username) {
         db.collection("users").updateOne({ username: user.username }, { $set: { "details.diff": diff } })
       }
@@ -118,6 +130,7 @@ app.post("/update-details", VerifyCookies, async (req, res) => {
   }
 
   try {
+    const db = await connectDB();
     if (req.token.username) {
       const username = req.token.username;
       user.username = username;

@@ -25,7 +25,7 @@ app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const query = { username, password }
   try {
-    const db=await connectDB();
+    const db = await connectDB();
     const user = await db.collection("users").find(query).toArray();
     if (user.length !== 1) {
       return res.status(400).json({ statusMessage: "Username or password incorrect", status: "failure" });
@@ -50,7 +50,7 @@ app.post("/glogin", async (req, res) => {
   const info = req.body;
   const { name, email } = info;
   try {
-    const db=await connectDB();
+    const db = await connectDB();
     const user = await db.collection("users").find({ email }).toArray();
     if (user.length !== 1) {
       if (user.length === 0) {
@@ -104,7 +104,7 @@ app.get("/refresh", async (req, res) => {
   if (token) {
     try {
       const { username } = jwt.verify(token, process.env.JWT_SECRET, { ignoreExpiration: true });
-          const db=await connectDB();
+      const db = await connectDB();
       const user = await db.collection("users").find({ username }).toArray();
       if (user.length === 1) {
         const refresh_token = user[0].refresh_token
@@ -149,7 +149,7 @@ app.get("/check-username", async (req, res) => {
       message: "username is empty/not given"
     })
   }
-      const db=await connectDB();
+  const db = await connectDB();
 
   const users = await db.collection("users").find({ username: user }).toArray();
   if (users.length === 0) {
@@ -170,7 +170,7 @@ app.post("/add-user", async (req, res) => {
   const { username, pass, name, email } = req.body;
 
   try {
-        const db=await connectDB();
+    const db = await connectDB();
 
     const existingUser = await db.collection("users").findOne({ email });
     if (existingUser) {
