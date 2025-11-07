@@ -44,8 +44,8 @@ app.post("/login", async (req, res) => {
     db.collection("users").updateOne(query, { $set: { refresh_token } });
     res.cookie("access_token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       path: "/",
     });
     res.json({ role: user[0].role, status: "success", statusMessage: "login successful and cookie is set" });
@@ -75,8 +75,8 @@ app.post("/glogin", async (req, res) => {
         db.collection("users").updateOne({ email }, { $set: { refresh_token } });
         res.cookie("access_token", token, {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
+          secure: true,
+          sameSite: "none",
           path: "/",
         });
         res.json({ role: "user", status: "success", statusMessage: "login successful and cookie is set" });
@@ -89,8 +89,8 @@ app.post("/glogin", async (req, res) => {
     db.collection("users").updateOne({ email }, { $set: { refresh_token } });
     res.cookie("access_token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       path: "/",
     });
     res.json({ role: user[0].role, status: "success", statusMessage: "login successful and cookie is set" });
@@ -121,8 +121,8 @@ app.get("/refresh", async (req, res) => {
         const token = jwt.sign(refresh_data, process.env.JWT_SECRET, { expiresIn: 60 * 60 });
         res.cookie("access_token", token, {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
+          secure: true,
+          sameSite: "none",
           path: "/",
         });
         return res.status(200).json({ name: refresh_data.name, role: refresh_data.role, status: "success", statusMessage: "refresh successful and cookie is set" });
@@ -141,8 +141,8 @@ app.get("/logout", (req, res) => {
 
   res.cookie("access_token", {}, {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
     path: "/",
     maxAge: 0
   });
@@ -209,8 +209,8 @@ app.post("/add-user", async (req, res) => {
     db.collection("users").updateOne({ username }, { $set: { refresh_token } });
     res.cookie("access_token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       path: "/",
     });
     return res.status(200).json({ username, status: "success", statusMessage: "added user to db" });
