@@ -8,7 +8,7 @@ export default function Interview() {
   const nav = useNavigate();
   useEffect(() => {
     const checkStatus = async () => {
-      const res = await axios.get("http://localhost:5000/check-details", { withCredentials: true, validateStatus: () => true })
+      const res = await axios.get(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/check-details`, { withCredentials: true, validateStatus: () => true })
       if (res.status === 200) {
         setDetails(res.data.details);
 
@@ -36,7 +36,7 @@ export default function Interview() {
     setEr("")
     console.log(id)
     setGenerating(true);
-    const res = await axios.get(`http://localhost:5000/generate/${id}`, { withCredentials: true, validateStatus: () => true })
+    const res = await axios.get(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/generate/${id}`, { withCredentials: true, validateStatus: () => true })
     console.log(res.data)
     if (res.status !== 200) {
       setGenerating(false);
@@ -60,7 +60,7 @@ export default function Interview() {
   };
   const handleSubmit = async () => {
     setSubmitting(true);
-    const res = await axios.post("http://localhost:5000/submit", { answers, interviewID: iid }, { withCredentials: true, validateStatus: () => true })
+    const res = await axios.post(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/submit`, { answers, interviewID: iid }, { withCredentials: true, validateStatus: () => true })
     if (res.status !== 200) {
       setEr("couldnt submit please try again")
     }
@@ -73,7 +73,7 @@ export default function Interview() {
   const loadscore = async (t = 7) => {
     await delay(t * 1000);
 
-    const res = await axios.get(`http://localhost:5000/score/${iid}`, { withCredentials: true, validateStatus: () => true });
+    const res = await axios.get(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/score/${iid}`, { withCredentials: true, validateStatus: () => true });
     console.log(res)
     if (res.status === 201) {
       loadscore(7);

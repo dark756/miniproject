@@ -122,7 +122,7 @@ export default function Details({ name }) {
 
   useEffect(() => {
     const get_details = async () => {
-      const res = await axios.get("http://localhost:5000/check-details",
+      const res = await axios.get(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/check-details`,
         { validateStatus: () => true, withCredentials: true })
       console.log(res)
       if (res.status === 200 && res.data.detailsFound === true) {
@@ -219,7 +219,7 @@ export default function Details({ name }) {
       dob
     }
     console.log(payload)
-    const res = await axios.post("http://localhost:5000/update-details", { payload }, {
+    const res = await axios.post(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/update-details`, { payload }, {
       validateStatus: () => true,
       withCredentials: true
     });

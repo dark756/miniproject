@@ -8,7 +8,7 @@ export default function Dash({ name }) {
   const [details, setDetails] = useState(false);
   useEffect(() => {
     const checkStatus = async () => {
-      const res = await axios.get("http://localhost:5000/check-details", { withCredentials: true, validateStatus: () => true })
+      const res = await axios.get(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/check-details`, { withCredentials: true, validateStatus: () => true })
       if (res.status === 200) {
         setDetails(res.data.detailsFound);
       }

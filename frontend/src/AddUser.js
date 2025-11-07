@@ -20,7 +20,7 @@ export default function AddUser() {
           setAvailable(null);
           return;
         }
-        const res = await axios.get(`http://localhost:5000/check-username?username=${username}`);
+        const res = await axios.get(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/check-username?username=${username}`);
         setAvailable(res.data.available);
       } catch (err) {
         console.error("Error checking username:", err);
@@ -66,7 +66,7 @@ export default function AddUser() {
 
   const handleSubmit = (w) => {
     w.preventDefault();
-    axios.post("http://localhost:5000/add-user", { username, name, pass, email }, { withCredentials: true, validateStatus: () => true })
+    axios.post(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/add-user`, { username, name, pass, email }, { withCredentials: true, validateStatus: () => true })
       .then(res => {
         if (res.status === 200) {
           setError(false);

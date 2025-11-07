@@ -20,7 +20,7 @@ export default function Admin({ name }) {
     const user = delUser;
     setPop(false);
     try {
-      const res = await axios.post(`http://localhost:5000/delete-user`, { user }, {
+      const res = await axios.post(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/delete-user`, { user }, {
         withCredentials: true,
         validateStatus: () => true,
       });
@@ -38,7 +38,7 @@ export default function Admin({ name }) {
   };
   useEffect(() => {
     axios
-      .get("http://localhost:5000/get-users", {
+      .get(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/get-users`, {
         withCredentials: true,
         validateStatus: () => true,
       })

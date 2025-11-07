@@ -28,7 +28,7 @@ export default function App() {
   const location = useLocation();
 
   const logout = () => {
-    axios.get("http://localhost:5000/logout", { withCredentials: true });
+    axios.get(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/logout`, { withCredentials: true });
     navigate("/login");
   };
 

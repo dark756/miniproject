@@ -15,7 +15,7 @@ export default function Login() {
             const info = jwtDecode(token);
             const { email } = info;
             console.log(info);
-            const res = await axios.post("http://localhost:5000/glogin", info, { validateStatus: () => true, withCredentials: true });
+            const res = await axios.post(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/glogin`, info, { validateStatus: () => true, withCredentials: true });
             console.log(res);
             if (res.status !== 200 && res.status !== 201) {
                 setgFailed(true);
@@ -33,7 +33,7 @@ export default function Login() {
     }
     const handle = (e) => {
         e.preventDefault();
-        axios.post("http://localhost:5000/login",
+        axios.post(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/login`,
             {
                 username, password
             },

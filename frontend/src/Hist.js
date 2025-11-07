@@ -9,7 +9,7 @@ export default function Hist() {
 
   useEffect(() => {
     const call = async () => {
-      const res = await axios.get("http://localhost:5000/check-hist", { withCredentials: true, validateStatus: () => true })
+      const res = await axios.get(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/check-hist`, { withCredentials: true, validateStatus: () => true })
       if (res.status === 200) {
         setIds(res.data.iids ?? null);
       } else {
@@ -76,7 +76,7 @@ export function HistID() {
   useEffect(() => {
     const loadscore = async (t = 0) => {
       await delay(t * 1000);
-      const res = await axios.get(`http://localhost:5000/score/${id}`, { withCredentials: true, validateStatus: () => true });
+      const res = await axios.get(`${process.env.REACT_APP_API_URI || "http://localhost:5000"}/score/${id}`, { withCredentials: true, validateStatus: () => true });
       if (res.status === 201) {
         loadscore(7);
       } else if (res.status === 200) {
